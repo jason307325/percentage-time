@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>秒數百分比計算器</title>
+
+<style>
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+    background:#f2f4f8;
+    padding:20px;
+}
+.container{
+    max-width:420px;
+    margin:auto;
+    background:#fff;
+    border-radius:14px;
+    padding:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,.1);
+}
+h1{text-align:center;margin-bottom:10px}
+.desc{
+    font-size:14px;
+    color:#555;
+    background:#eef6ff;
+    padding:10px;
+    border-radius:8px;
+    margin-bottom:15px;
+}
+button{
+    padding:8px 12px;
+    margin:5px;
+    font-size:14px;
+    border-radius:6px;
+}
+.active{
+    background:#004aad;
+    color:#fff;
+}
+label{
+    display:block;
+    margin-top:12px;
+    font-weight:600;
+}
+input,select{
+    width:100%;
+    padding:8px;
+    margin-top:5px;
+    font-size:16px;
+}
+.result{
+    margin-top:15px;
+    background:#eef6ff;
+    padding:12px;
+    border-radius:10px;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+    color:#004aad;
+}
+.section{display:none}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+th,td{
+    border:1px solid #ccc;
+    padding:6px;
+    text-align:center;
+    font-size:14px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h1>⏱ 秒數百分比計算器</h1>
+
+<div class="desc">
+<strong>計算規則說明：</strong><br>
+100% = 最佳成績<br>
+80% = 比最佳成績慢 20%（秒數 × 1.2）
+</div>
+
+<div style="text-align:center">
+<button id="athleteBtn" class="active">選手版</button>
+<button id="coachBtn">教練版</button>
+</div>
+
+<label>最佳成績（mm:ss.xx）</label>
+<input id="bestTime" placeholder="00:36.76">
+
+<label>取整方式</label>
+<select id="rounding">
+    <option value="2">取到 0.01 秒</option>
+    <option value="1">取到 0.1 秒</option>
+    <option value="0">不取整</option>
+</select>
+
+<!-- 選手版 -->
+<div id="athlete" class="section" style="display:block">
+    <label>百分比</label>
+    <input type="range" id="percent" min="50" max="120" value="80">
+    <div class="result" id="result">請輸入成績</div>
+</div>
+
+<!-- 教練版 -->
+<div id="coach" class="section">
+    <table>
+        <thead>
+            <tr><th>%</th><th>成績</th></tr>
+        </thead>
+        <tbody id="table"></tbody>
+    </table>
+</div>
+</div>
+
+<script>
+// ===== 工具函式 =====
+function timeToSeconds(t){
+    let p = t.split(":");
+    if(p.length !== 2) return null;
+    let m = parseInt(p[0]);
+    let s = parseFloat(p[1]);
+    if(isNaN(m) || isNaN(s)) return null;
+    return m * 60 + s;
+}
+
+function secondsToTime(sec, digits){
+    let m = Math.floor(sec / 60);
+    let s = (sec % 60).toFixed(digits);
+    return String(m).padStart(2,"0") + ":" + s.padStart(5,"0");
+}
+
+// ===== 核心計算（依你定義）=====
+// 目標秒數 = 最佳秒數 × (200 − 百分比) ÷ 100
+function calculate(){
+    let bestSeconds = timeToSeconds(bestTime.value);
+    if(bestSeconds === null){
+        result.textContent = "請輸入正確格式";
+        return;
+    }
+
+    let p = parseFloat(percent.value);
+    let digits = parseInt(rounding.value);
+
+    let targetSeconds = bestSeconds * ((200 - p) / 100);
+
+    result.textContent = `${p}% → ${secondsToTime(targetSeconds, digits)}`;
+
+    // 教練表格
+    let rows = "";
+    for(let i=50;i<=120;i+=5){
+        let sec = bestSeconds * ((200 - i) / 100);
+        rows += `<tr><td>${i}%</td><td>${secondsToTime(sec, digits)}</td></tr>`;
+    }
+    table.innerHTML = rows;
+}
+
+// ===== 事件 =====
+bestTime.addEventListener("input", calculate);
+percent.addEventListener("input", calculate);
+rounding.addEventListener("change", calculate);
+
+athleteBtn.onclick = () => {
+    athlete.style.display = "block";
+    coach.style.display = "none";
+    athleteBtn.classList.add("active");
+    coachBtn.classList.remove("active");
+};
+
+coachBtn.onclick = () => {
+    athlete.style.display = "none";
+    coach.style.display = "block";
+    coachBtn.classList.add("active");
+    athleteBtn.classList.remove("active");
+    calculate();
+};
+</script>
+</body>
+</html>
