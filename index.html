@@ -9,8 +9,9 @@
     :root {
         --primary: #004aad;
         --bg: #f2f4f8;
+        --key-bg: #ffffff;
     }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     
     body {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -20,290 +21,278 @@
         height: 100vh;
         width: 100vw;
         display: flex;
-        justify-content: center;
-        align-items: center;
-        overflow: hidden; /* 固定畫面比例，防止捲動 */
+        flex-direction: column;
+        overflow: hidden; /* 防止網頁捲動，固定比例 */
     }
 
+    /* 主容器 */
     .container {
-        width: 95%;
-        max-width: 420px;
-        height: 90vh; /* 確保不被網址列遮擋 */
-        background: #fff;
-        border-radius: 20px;
-        padding: 20px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        flex: 1;
+        padding: 15px;
         display: flex;
         flex-direction: column;
+        max-width: 420px;
+        margin: auto;
+        width: 100%;
     }
 
-    h1 { text-align: center; margin: 0 0 10px 0; font-size: 24px; }
+    h1 { text-align: center; margin: 5px 0; font-size: 20px; }
 
     .desc {
-        font-size: 13px;
+        font-size: 12px;
         color: #555;
         background: #eef6ff;
-        padding: 10px;
-        border-radius: 10px;
-        margin-bottom: 15px;
+        padding: 8px;
+        border-radius: 8px;
+        margin-bottom: 10px;
     }
 
-    /* 模式切換按鈕 */
+    /* 模式切換 */
     .mode-switch {
         display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 8px;
+        margin-bottom: 10px;
     }
     .mode-switch button {
         flex: 1;
-        padding: 12px;
+        padding: 10px;
         border: none;
-        border-radius: 10px;
+        border-radius: 8px;
         background: #ddd;
         font-weight: bold;
-        transition: 0.3s;
     }
     .mode-switch button.active {
         background: var(--primary);
         color: #fff;
     }
 
-    /* 核心輸入區優化 */
-    .time-input-group {
+    /* 成績輸入區 */
+    .time-display {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 5px;
+        background: #fff;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .unit-box {
+        flex: 1;
+        text-align: center;
+        border: 2px solid #eee;
+        border-radius: 8px;
+        padding: 10px 0;
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+        min-height: 50px;
+    }
+    .unit-box.active {
+        border-color: var(--primary);
+        background: #f0f7ff;
+    }
+    .unit-box span { font-size: 12px; display: block; color: #888; margin-top: 4px; }
+    .sep { font-size: 24px; font-weight: bold; color: #aaa; }
+
+    /* 結果與列表 */
+    .view-area {
+        flex: 1;
+        overflow-y: auto;
         margin-top: 10px;
     }
-    .time-box {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .time-box input {
-        width: 100%;
-        height: 70px; /* 加大輸入格 */
-        text-align: center;
-        font-size: 32px; /* 計算機式大字體 */
-        font-weight: bold;
-        border: 2px solid #ccc;
-        border-radius: 12px;
-        background: #fafafa;
-        /* 強制喚起數字鍵盤 */
-        inputmode: decimal; 
-    }
-    .time-box input:focus {
-        border-color: var(--primary);
-        background: #fff;
-        outline: none;
-    }
-    .separator {
-        font-size: 24px;
-        font-weight: bold;
-        margin-top: -20px;
-    }
-
-    label { display: block; margin-top: 15px; font-weight: 600; color: #333; }
-
-    select {
-        width: 100%;
-        padding: 12px;
-        margin-top: 8px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 16px;
-    }
-
-    /* 顯示結果區 */
     .result {
-        margin-top: 20px;
         background: #eef6ff;
-        padding: 20px;
-        border-radius: 15px;
+        padding: 15px;
+        border-radius: 12px;
         text-align: center;
-        font-size: 26px;
+        font-size: 24px;
         font-weight: 900;
         color: var(--primary);
-        min-height: 70px;
+        margin-bottom: 10px;
     }
-
-    .section { 
-        display: none; 
-        flex: 1; 
-        overflow-y: auto; /* 內容過長時內部捲動，不影響外層 */
-        margin-top: 15px; 
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    th, td {
-        border-bottom: 1px solid #eee;
-        padding: 10px;
-        text-align: center;
-    }
+    table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; overflow: hidden; }
+    th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: center; font-size: 14px; }
     th { background: #f8f9fa; position: sticky; top: 0; }
 
-    #percent { width: 100%; margin-top: 15px; height: 30px; }
+    /* 自定義 12 宮格計算機鍵盤 */
+    .numpad {
+        background: #d1d4d9;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        padding: 5px;
+        padding-bottom: 20px; /* 留給手機底部橫條空間 */
+    }
+    .key {
+        background: var(--key-bg);
+        height: 60px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 24px;
+        font-weight: 600;
+        border-radius: 5px;
+        box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+    }
+    .key:active { background: #ebebeb; transform: translateY(1px); }
+    .key.gray { background: #b4b8c0; }
 </style>
 </head>
 
 <body>
+
 <div class="container">
     <h1>⏱ 秒數百分比計算器</h1>
 
-    <div class="desc">
-        <strong>100% = 最佳 | 80% = 慢 20% (秒x1.2)</strong>
-    </div>
+    <div class="desc">公式：100% 最佳成績 | 80% = 秒數 × 1.2</div>
 
     <div class="mode-switch">
         <button id="athleteBtn" class="active">選手版</button>
         <button id="coachBtn">教練版</button>
     </div>
 
-    <label>最佳成績 (分 : 秒 . 毫秒)</label>
-    <div class="time-input-group">
-        <div class="time-box">
-            <input type="text" id="min" placeholder="00" maxlength="2" pattern="\[0-9]*">
-            <small>分</small>
-        </div>
-        <div class="separator">:</div>
-        <div class="time-box">
-            <input type="text" id="sec" placeholder="00" maxlength="2" pattern="\[0-9]*">
-            <small>秒</small>
-        </div>
-        <div class="separator">.</div>
-        <div class="time-box">
-            <input type="text" id="ms" placeholder="00" maxlength="2" pattern="\[0-9]*">
-            <small>毫秒</small>
-        </div>
+    <!-- 輸入顯示區 -->
+    <div class="time-display">
+        <div id="box-min" class="unit-box active" onclick="focusBox(0)">00<span>分</span></div>
+        <div class="sep">:</div>
+        <div id="box-sec" class="unit-box" onclick="focusBox(1)">00<span>秒</span></div>
+        <div class="sep">.</div>
+        <div id="box-ms" class="unit-box" onclick="focusBox(2)">00<span>毫秒</span></div>
     </div>
 
-    <label>取整方式</label>
-    <select id="rounding">
-        <option value="2">取到 0.01 秒</option>
-        <option value="1">取到 0.1 秒</option>
-        <option value="0">不取整</option>
-    </select>
+    <div class="view-area">
+        <!-- 選手版 -->
+        <div id="athleteView">
+            <div style="margin:10px 0; font-weight: bold;">
+                百分比: <span id="percentVal">80</span>%
+                <input type="range" id="percentRange" min="50" max="150" value="80" style="width:100%; margin-top:10px;">
+            </div>
+            <div class="result" id="resText">00:00.00</div>
+        </div>
 
-    <!-- 選手版 -->
-    <div id="athlete" class="section" style="display:block">
-        <label id="percentLabel">目前百分比: 80%</label>
-        <input type="range" id="percent" min="50" max="150" value="80">
-        <div class="result" id="result">請輸入成績</div>
-    </div>
-
-    <!-- 教練版 -->
-    <div id="coach" class="section">
-        <table>
-            <thead>
-                <tr><th>%</th><th>換算成績</th></tr>
-            </thead>
-            <tbody id="table"></tbody>
-        </table>
+        <!-- 教練版 -->
+        <div id="coachView" style="display:none">
+            <table>
+                <thead><tr><th>%</th><th>換算成績</th></tr></thead>
+                <tbody id="coachTable"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
+<!-- 12 宮格計算機鍵盤 -->
+<div class="numpad">
+    <!-- 計算機排列：789 在上 -->
+    <div class="key" onclick="press(7)">7</div>
+    <div class="key" onclick="press(8)">8</div>
+    <div class="key" onclick="press(9)">9</div>
+    <div class="key" onclick="press(4)">4</div>
+    <div class="key" onclick="press(5)">5</div>
+    <div class="key" onclick="press(6)">6</div>
+    <div class="key" onclick="press(1)">1</div>
+    <div class="key" onclick="press(2)">2</div>
+    <div class="key" onclick="press(3)">3</div>
+    <div class="key gray" onclick="press('C')">C</div>
+    <div class="key" onclick="press(0)">0</div>
+    <div class="key gray" onclick="press('X')">⌫</div>
+</div>
+
 <script>
-const minIn = document.getElementById('min');
-const secIn = document.getElementById('sec');
-const msIn = document.getElementById('ms');
-const inputs = [minIn, secIn, msIn];
-
-// ===== 自動跳格邏輯 =====
-inputs.forEach((input, index) => {
-    input.addEventListener('input', (e) => {
-        // 只允許數字
-        input.value = input.value.replace(/[^0-9]/g, '');
-        
-        if (input.value.length === 2) {
-            if (index < inputs.length - 1) {
-                inputs[index + 1].focus();
-                inputs[index + 1].select();
-            }
-        }
-        calculate();
-    });
-
-    // 刪除鍵回跳
-    input.addEventListener('keydown', (e) => {
-        if (e.key === 'Backspace' && input.value.length === 0) {
-            if (index > 0) {
-                inputs[index - 1].focus();
-            }
-        }
-    });
-
-    // 點選時全選文字方便修改
-    input.addEventListener('click', () => input.select());
-});
-
-function getBestSeconds() {
-    let m = parseInt(minIn.value) || 0;
-    let s = parseInt(secIn.value) || 0;
-    let ms = parseInt(msIn.value) || 0;
+    let currentFocus = 0; // 0:min, 1:sec, 2:ms
+    let values = ["", "", ""];
     
-    if (minIn.value === "" && secIn.value === "" && msIn.value === "") return null;
-    return (m * 60) + s + (ms / 100);
-}
+    const boxes = [
+        document.getElementById('box-min'),
+        document.getElementById('box-sec'),
+        document.getElementById('box-ms')
+    ];
 
-function secondsToTime(totalSec, digits) {
-    let m = Math.floor(totalSec / 60);
-    let s = (totalSec % 60).toFixed(digits);
-    return String(m).padStart(2, "0") + ":" + s.padStart(digits > 0 ? digits + 3 : 2, "0");
-}
-
-function calculate() {
-    let bestSeconds = getBestSeconds();
-    if (bestSeconds === null) {
-        document.getElementById('result').textContent = "等待輸入...";
-        return;
+    function focusBox(idx) {
+        currentFocus = idx;
+        boxes.forEach((b, i) => b.classList.toggle('active', i === idx));
     }
 
-    let p = parseFloat(document.getElementById('percent').value);
-    let digits = parseInt(document.getElementById('rounding').value);
-    document.getElementById('percentLabel').textContent = `目前百分比: ${p}%`;
-
-    // 公式：目標秒數 = 最佳秒數 × (200 − 百分比) ÷ 100
-    let targetSeconds = bestSeconds * ((200 - p) / 100);
-    document.getElementById('result').textContent = `${secondsToTime(targetSeconds, digits)}`;
-
-    // 教練表格
-    let rows = "";
-    for (let i = 50; i <= 150; i += 5) {
-        let sec = bestSeconds * ((200 - i) / 100);
-        rows += `<tr><td>${i}%</td><td>${secondsToTime(sec, digits)}</td></tr>`;
+    function press(key) {
+        if (key === 'C') {
+            values = ["", "", ""];
+            currentFocus = 0;
+        } else if (key === 'X') {
+            if (values[currentFocus].length > 0) {
+                values[currentFocus] = values[currentFocus].slice(0, -1);
+            } else if (currentFocus > 0) {
+                currentFocus--;
+            }
+        } else {
+            if (values[currentFocus].length < 2) {
+                values[currentFocus] += key.toString();
+                if (values[currentFocus].length === 2 && currentFocus < 2) {
+                    currentFocus++;
+                }
+            } else if (currentFocus < 2) {
+                currentFocus++;
+                values[currentFocus] += key.toString();
+            }
+        }
+        updateDisplay();
+        calculate();
     }
-    document.getElementById('table').innerHTML = rows;
-}
 
-// 事件綁定
-document.getElementById('percent').addEventListener('input', calculate);
-document.getElementById('rounding').addEventListener('change', calculate);
+    function updateDisplay() {
+        boxes.forEach((b, i) => {
+            const val = values[i] || "00";
+            b.innerHTML = val.padStart(2, '0') + `<span>${['分','秒','毫秒'][i]}</span>`;
+            b.classList.toggle('active', i === currentFocus);
+        });
+    }
 
-// 模式切換
-const athleteBtn = document.getElementById('athleteBtn');
-const coachBtn = document.getElementById('coachBtn');
-const athleteSec = document.getElementById('athlete');
-const coachSec = document.getElementById('coach');
+    function calculate() {
+        const m = parseInt(values[0]) || 0;
+        const s = parseInt(values[1]) || 0;
+        const ms = parseInt(values[2]) || 0;
+        const bestSec = (m * 60) + s + (ms / 100);
+        
+        const p = document.getElementById('percentRange').value;
+        document.getElementById('percentVal').textContent = p;
 
-athleteBtn.onclick = () => {
-    athleteSec.style.display = "block";
-    coachSec.style.display = "none";
-    athleteBtn.classList.add("active");
-    coachBtn.classList.remove("active");
-};
+        if (bestSec === 0) return;
 
-coachBtn.onclick = () => {
-    athleteSec.style.display = "none";
-    coachSec.style.display = "block";
-    coachBtn.classList.add("active");
-    athleteBtn.classList.remove("active");
-    calculate();
-};
+        // 計算
+        const getFormat = (perc) => {
+            const target = bestSec * ((200 - perc) / 100);
+            const rm = Math.floor(target / 60);
+            const rs = (target % 60).toFixed(2);
+            return `${String(rm).padStart(2,'0')}:${rs.padStart(5,'0')}`;
+        };
+
+        document.getElementById('resText').textContent = getFormat(p);
+
+        let rows = "";
+        for (let i = 50; i <= 150; i += 5) {
+            rows += `<tr><td>${i}%</td><td>${getFormat(i)}</td></tr>`;
+        }
+        document.getElementById('coachTable').innerHTML = rows;
+    }
+
+    // 模式切換
+    document.getElementById('athleteBtn').onclick = () => {
+        document.getElementById('athleteView').style.display = "block";
+        document.getElementById('coachView').style.display = "none";
+        document.getElementById('athleteBtn').classList.add("active");
+        document.getElementById('coachBtn').classList.remove("active");
+    };
+
+    document.getElementById('coachBtn').onclick = () => {
+        document.getElementById('athleteView').style.display = "none";
+        document.getElementById('coachView').style.display = "block";
+        document.getElementById('coachBtn').classList.add("active");
+        document.getElementById('athleteBtn').classList.remove("active");
+        calculate();
+    };
+
+    document.getElementById('percentRange').oninput = calculate;
+
 </script>
+
 </body>
 </html>
