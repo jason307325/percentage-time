@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>秒數百分比計算器 2026</title>
+<title>秒數百分比計算器 2026 高速版</title>
 
 <style>
     :root {
@@ -17,74 +17,47 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         background: var(--bg);
         margin: 0; padding: 0;
-        height: 100dvh; 
-        width: 100vw;
+        height: 100dvh; width: 100vw;
         display: flex; flex-direction: column;
         overflow: hidden;
         padding-top: calc(env(safe-area-inset-top) + 10px);
     }
 
     .container {
-        flex: 1;
-        padding: 5px 15px;
-        display: flex;
-        flex-direction: column;
-        max-width: 420px;
-        margin: auto;
-        width: 100%;
-        overflow: hidden;
+        flex: 1; padding: 5px 15px; display: flex; flex-direction: column;
+        max-width: 420px; margin: auto; width: 100%; overflow: hidden;
     }
 
     h1 { text-align: center; margin: 0 0 5px 0; font-size: 15px; color: #777; }
 
-    .mode-switch {
-        display: flex; gap: 8px; margin-bottom: 8px;
-        flex-shrink: 0;
-    }
+    .mode-switch { display: flex; gap: 8px; margin-bottom: 8px; flex-shrink: 0; }
     .mode-switch button {
         flex: 1; padding: 8px; border: none; border-radius: 8px;
         background: #ccc; font-weight: bold; font-size: 13px;
     }
     .mode-switch button.active { background: var(--primary); color: #fff; }
 
-    /* 輸入區顯示 */
     .time-display {
         display: flex; align-items: center; justify-content: center;
         gap: 5px; background: #fff; padding: 8px; border-radius: 12px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        flex-shrink: 0;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05); flex-shrink: 0;
     }
     .unit-box {
         flex: 1; text-align: center; border: 2px solid #eee;
-        border-radius: 8px; padding: 5px 0; font-size: 22px;
-        font-weight: bold; color: #333;
+        border-radius: 8px; padding: 5px 0; font-size: 22px; font-weight: bold; color: #333;
     }
     .unit-box.active { border-color: var(--primary); background: #f0f7ff; }
     .unit-box span { font-size: 9px; display: block; color: #888; }
     .sep { font-size: 16px; font-weight: bold; color: #aaa; }
 
-    /* 中間內容區 */
-    .view-area { 
-        flex: 1; 
-        overflow: hidden;
-        margin: 5px 0;
-        display: flex;
-        flex-direction: column;
-    }
+    .view-area { flex: 1; overflow: hidden; margin: 5px 0; display: flex; flex-direction: column; }
     
     #athleteView {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-evenly;
+        width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-evenly;
+        will-change: transform; /* 提醒瀏覽器硬體加速 */
     }
 
-    .range-container { 
-        width: 100%;
-        padding: 5px 0;
-        flex-shrink: 0; 
-    }
+    .range-container { width: 100%; padding: 5px 0; flex-shrink: 0; }
     .percent-label {
         font-weight: bold; text-align: center; color: var(--primary); 
         font-size: 18px; margin-bottom: 5px; display: block;
@@ -94,47 +67,27 @@
     .ticks span { font-size: 9px; color: #999; display: flex; flex-direction: column; align-items: center; }
     .ticks span::before { content: ""; width: 1px; height: 4px; background: #ddd; margin-bottom: 2px; }
 
-    /* 結果顯示：稍微縮小避免擠壓 */
     .result {
-        background: #eef6ff; 
-        padding: 15px 10px; 
-        border-radius: 16px;
-        text-align: center; 
-        font-size: 40px; 
-        font-weight: 900;
-        color: var(--primary);
-        letter-spacing: 1px;
-        min-height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        flex-shrink: 0;
+        background: #eef6ff; padding: 15px 10px; border-radius: 16px;
+        text-align: center; font-size: 40px; font-weight: 900;
+        color: var(--primary); letter-spacing: 1px; min-height: 80px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); flex-shrink: 0;
     }
 
-    #coachView { width: 100%; height: 100%; overflow-y: auto; }
+    #coachView { width: 100%; height: 100%; overflow-y: auto; -webkit-overflow-scrolling: touch; }
     table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; }
     th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: center; font-size: 13px; }
     th { background: #f8f9fa; position: sticky; top: 0; z-index: 10; }
 
-    /* 鍵盤區：極致縮小與位移 */
     .numpad-wrapper {
         background: #d1d4d9;
-        /* 確保完全避開網址列且不與內容重疊 */
         padding: 6px 8px calc(env(safe-area-inset-bottom) + 10px) 8px;
-        box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-        flex-shrink: 0;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.1); flex-shrink: 0;
     }
-    .numpad {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 5px;
-        max-width: 400px;
-        margin: 0 auto;
-    }
+    .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; max-width: 400px; margin: 0 auto; }
     .key {
-        background: var(--key-bg);
-        aspect-ratio: 2.8 / 1; /* 按鈕變扁平以節省垂直空間 */
+        background: var(--key-bg); aspect-ratio: 2.8 / 1; 
         display: flex; justify-content: center; align-items: center;
         font-size: 18px; font-weight: 600; border-radius: 6px;
         box-shadow: 0 1px 2px rgba(0,0,0,0.15);
@@ -147,7 +100,7 @@
 <body>
 
 <div class="container">
-    <h1>⏱ 2026 秒數百分比計算器</h1>
+    <h1>⏱ 2026 高速秒數計算器</h1>
 
     <div class="mode-switch">
         <button id="athleteBtn" class="active">選手版</button>
@@ -165,9 +118,7 @@
     <div class="view-area">
         <div id="athleteView">
             <div class="range-container">
-                <div class="percent-label">
-                    <span id="percentVal">80</span> %
-                </div>
+                <div class="percent-label"><span id="percentVal">80</span> %</div>
                 <input type="range" id="percentRange" min="50" max="120" step="5" value="80">
                 <div class="ticks">
                     <span>50</span><span>60</span><span>70</span><span>80</span><span>90</span><span>100</span><span>110</span><span>120</span>
@@ -185,28 +136,28 @@
     </div>
 </div>
 
-<!-- 底部扁平化鍵盤 -->
 <div class="numpad-wrapper">
     <div class="numpad">
-        <div class="key" onclick="press(7)">7</div>
-        <div class="key" onclick="press(8)">8</div>
-        <div class="key" onclick="press(9)">9</div>
-        <div class="key" onclick="press(4)">4</div>
-        <div class="key" onclick="press(5)">5</div>
-        <div class="key" onclick="press(6)">6</div>
-        <div class="key" onclick="press(1)">1</div>
-        <div class="key" onclick="press(2)">2</div>
-        <div class="key" onclick="press(3)">3</div>
-        <div class="key gray" onclick="press('C')">AC</div>
-        <div class="key" onclick="press(0)">0</div>
-        <div class="key gray" onclick="press('X')">⌫</div>
+        <div class="key" onclick="press(7)">7</div><div class="key" onclick="press(8)">8</div><div class="key" onclick="press(9)">9</div>
+        <div class="key" onclick="press(4)">4</div><div class="key" onclick="press(5)">5</div><div class="key" onclick="press(6)">6</div>
+        <div class="key" onclick="press(1)">1</div><div class="key" onclick="press(2)">2</div><div class="key" onclick="press(3)">3</div>
+        <div class="key gray" onclick="press('C')">AC</div><div class="key" onclick="press(0)">0</div><div class="key gray" onclick="press('X')">⌫</div>
     </div>
 </div>
 
 <script>
     let currentFocus = 0; 
     let values = ["", "", ""];
-    const boxes = [document.getElementById('box-min'), document.getElementById('box-sec'), document.getElementById('box-ms')];
+    let currentMode = 'athlete'; // 新增模式追蹤
+    
+    const boxes = [
+        document.getElementById('box-min'), 
+        document.getElementById('box-sec'), 
+        document.getElementById('box-ms')
+    ];
+    const resText = document.getElementById('resText');
+    const percentVal = document.getElementById('percentVal');
+    const coachTable = document.getElementById('coachTable');
 
     function focusBox(idx) {
         currentFocus = idx;
@@ -226,69 +177,83 @@
         } else {
             if (values[currentFocus].length < 2) {
                 values[currentFocus] += key.toString();
-                if (values[currentFocus].length === 2 && currentFocus < 2) {
-                    currentFocus++;
-                }
+                if (values[currentFocus].length === 2 && currentFocus < 2) currentFocus++;
             } else if (currentFocus < 2) {
                 currentFocus++;
                 values[currentFocus] = key.toString();
             }
         }
         updateDisplay();
-        calculate();
+        fastCalculate();
     }
 
     function updateDisplay() {
         boxes.forEach((b, i) => {
             const val = values[i] || "00";
-            b.innerHTML = val.padStart(2, '0') + `<span>${['分','秒','毫秒'][i]}</span>`;
+            // 效能優化：僅在內容變化時更新子節點文字
+            if(b.firstChild.textContent !== val.padStart(2, '0')) {
+                b.firstChild.textContent = val.padStart(2, '0');
+            }
             b.classList.toggle('active', i === currentFocus);
         });
     }
 
-    function calculate() {
-        const m = parseInt(values[0]) || 0;
-        const s = parseInt(values[1]) || 0;
-        const ms = parseInt(values[2]) || 0;
-        const bestSec = (m * 60) + s + (ms / 100);
-        
-        const p = document.getElementById('percentRange').value;
-        document.getElementById('percentVal').textContent = p;
-
-        const getFormat = (perc) => {
-            if (bestSec === 0) return "00:00.00";
-            const target = bestSec * ((200 - perc) / 100);
-            const rm = Math.floor(target / 60);
-            const rs = (target % 60).toFixed(2);
-            return `${String(rm).padStart(2,'0')}:${rs.padStart(5,'0')}`;
-        };
-
-        document.getElementById('resText').textContent = getFormat(p);
-
-        let rows = "";
-        for (let i = 50; i <= 120; i += 5) {
-            rows += `<tr><td>${i}%</td><td>${getFormat(i)}</td></tr>`;
-        }
-        document.getElementById('coachTable').innerHTML = rows;
+    // 將秒數格式化提取出來，減少重複邏輯
+    function formatTime(totalSec) {
+        if (totalSec <= 0) return "00:00.00";
+        const rm = Math.floor(totalSec / 60);
+        const rs = (totalSec % 60).toFixed(2);
+        return `${rm.toString().padStart(2,'0')}:${rs.padStart(5,'0')}`;
     }
 
+    // 選手版快速計算
+    function fastCalculate() {
+        const bestSec = (parseInt(values[0]||0) * 60) + parseInt(values[1]||0) + (parseInt(values[2]||0) / 100);
+        const p = document.getElementById('percentRange').value;
+        percentVal.textContent = p;
+
+        if (currentMode === 'athlete') {
+            resText.textContent = formatTime(bestSec * ((200 - p) / 100));
+        } else {
+            renderCoachTable(bestSec);
+        }
+    }
+
+    // 教練版批次計算（僅在教練模式或切換時執行）
+    function renderCoachTable(bestSec) {
+        let rows = "";
+        for (let i = 50; i <= 120; i += 5) {
+            rows += `<tr><td>${i}%</td><td>${formatTime(bestSec * ((200 - i) / 100))}</td></tr>`;
+        }
+        coachTable.innerHTML = rows;
+    }
+
+    // 模式切換優化
     document.getElementById('athleteBtn').onclick = () => {
+        currentMode = 'athlete';
         document.getElementById('athleteView').style.display = "flex";
         document.getElementById('coachView').style.display = "none";
         document.getElementById('athleteBtn').classList.add("active");
         document.getElementById('coachBtn').classList.remove("active");
+        fastCalculate();
     };
 
     document.getElementById('coachBtn').onclick = () => {
+        currentMode = 'coach';
         document.getElementById('athleteView').style.display = "none";
         document.getElementById('coachView').style.display = "block";
         document.getElementById('coachBtn').classList.add("active");
         document.getElementById('athleteBtn').classList.remove("active");
-        calculate();
+        fastCalculate();
     };
 
-    document.getElementById('percentRange').oninput = calculate;
-    calculate();
+    document.getElementById('percentRange').oninput = fastCalculate;
+    
+    // 初始化盒子結構，確保渲染時只需更新文字
+    boxes.forEach((b, i) => {
+        b.innerHTML = "00<span>" + (['分','秒','毫秒'][i]) + "</span>";
+    });
+    fastCalculate();
 </script>
 
 </body>
