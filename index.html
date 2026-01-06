@@ -17,13 +17,11 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         background: var(--bg);
         margin: 0; padding: 0;
-        /* 使用 dvh (Dynamic Viewport Height) 確保自動避開網址列 */
         height: 100dvh; 
         width: 100vw;
         display: flex; flex-direction: column;
         overflow: hidden;
-        /* 頂部避開前鏡頭/時鐘 */
-        padding-top: calc(env(safe-area-inset-top) + 20px);
+        padding-top: calc(env(safe-area-inset-top) + 15px);
     }
 
     .container {
@@ -37,86 +35,92 @@
         overflow: hidden;
     }
 
-    h1 { text-align: center; margin: 0 0 10px 0; font-size: 18px; color: #333; }
+    h1 { text-align: center; margin: 0 0 8px 0; font-size: 16px; color: #666; }
 
-    /* 模式切換 */
     .mode-switch {
-        display: flex; gap: 8px; margin-bottom: 12px;
+        display: flex; gap: 8px; margin-bottom: 10px;
     }
     .mode-switch button {
-        flex: 1; padding: 10px; border: none; border-radius: 8px;
-        background: #ccc; font-weight: bold; font-size: 14px;
+        flex: 1; padding: 8px; border: none; border-radius: 8px;
+        background: #ccc; font-weight: bold; font-size: 13px;
     }
     .mode-switch button.active { background: var(--primary); color: #fff; }
 
     /* 輸入區顯示 */
     .time-display {
         display: flex; align-items: center; justify-content: center;
-        gap: 5px; background: #fff; padding: 12px; border-radius: 12px;
+        gap: 5px; background: #fff; padding: 10px; border-radius: 12px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     .unit-box {
         flex: 1; text-align: center; border: 2px solid #eee;
-        border-radius: 8px; padding: 8px 0; font-size: 26px;
+        border-radius: 8px; padding: 6px 0; font-size: 24px;
         font-weight: bold; color: #333;
     }
     .unit-box.active { border-color: var(--primary); background: #f0f7ff; }
-    .unit-box span { font-size: 11px; display: block; color: #888; margin-top: 2px; }
-    .sep { font-size: 20px; font-weight: bold; color: #aaa; }
+    .unit-box span { font-size: 10px; display: block; color: #888; }
+    .sep { font-size: 18px; font-weight: bold; color: #aaa; }
 
     /* 中間視圖區 */
     .view-area { 
         flex: 1; 
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
         overflow-y: auto; 
-        margin-top: 10px;
-        padding-bottom: 10px;
     }
     
-    .range-container { margin: 10px 0 20px 0; padding: 0 10px; }
-    input[type=range] { width: 100%; margin: 10px 0; }
+    .range-container { margin: 10px 0; padding: 0 5px; }
+    input[type=range] { width: 100%; margin: 8px 0; }
     .ticks { display: flex; justify-content: space-between; }
-    .ticks span { font-size: 10px; color: #888; display: flex; flex-direction: column; align-items: center; }
-    .ticks span::before { content: ""; width: 1px; height: 4px; background: #ccc; margin-bottom: 2px; }
+    .ticks span { font-size: 9px; color: #999; display: flex; flex-direction: column; align-items: center; }
+    .ticks span::before { content: ""; width: 1px; height: 3px; background: #ddd; margin-bottom: 2px; }
 
+    /* 放大顯示結果 */
     .result {
-        background: #eef6ff; padding: 15px; border-radius: 12px;
-        text-align: center; font-size: 32px; font-weight: 900;
+        background: #eef6ff; 
+        padding: 20px 10px; 
+        border-radius: 16px;
+        text-align: center; 
+        font-size: 42px; /* 顯著放大數字 */
+        font-weight: 900;
         color: var(--primary);
+        letter-spacing: 1px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
     }
 
     table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 10px; }
-    th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: center; font-size: 14px; }
+    th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: center; font-size: 13px; }
 
-    /* 修正後的鍵盤區：避開底部網址列重疊 */
-    .numpad {
+    /* 修正後的鍵盤區：縮小按鈕並向上位移 */
+    .numpad-wrapper {
         background: #d1d4d9;
+        padding: 10px 10px calc(env(safe-area-inset-bottom) + 15px) 10px; /* 增加底部墊高避開網址列 */
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+    }
+    .numpad {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 6px;
-        padding: 8px;
-        /* 關鍵：加入底部安全區域與固定間距，確保在網址列上方 */
-        padding-bottom: calc(env(safe-area-inset-bottom) + 10px);
-        height: auto;
-        max-height: 30dvh; /* 強制不超過畫面 1/3 */
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-        z-index: 100;
+        max-width: 400px;
+        margin: 0 auto;
     }
     .key {
         background: var(--key-bg);
-        aspect-ratio: 2 / 1; /* 控制按鈕比例 */
+        aspect-ratio: 2.2 / 1; /* 更加扁平化按鈕，縮小體積 */
         display: flex; justify-content: center; align-items: center;
-        font-size: 22px; font-weight: 600; border-radius: 6px;
+        font-size: 20px; font-weight: 600; border-radius: 8px;
         box-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
-    .key:active { background: #ebebeb; transform: scale(0.95); }
-    .key.gray { background: #b4b8c0; }
+    .key:active { background: #ebebeb; transform: scale(0.92); }
+    .key.gray { background: #b4b8c0; color: #fff; }
 </style>
 </head>
 
 <body>
 
 <div class="container">
-    <h1>⏱ 秒數百分比計算器</h1>
+    <h1>⏱ 2026 秒數百分比計算器</h1>
 
     <div class="mode-switch">
         <button id="athleteBtn" class="active">選手版</button>
@@ -134,7 +138,7 @@
     <div class="view-area">
         <div id="athleteView">
             <div class="range-container">
-                <div style="font-weight: bold; text-align: center; color: var(--primary); font-size: 20px; margin-bottom: 5px;">
+                <div style="font-weight: bold; text-align: center; color: var(--primary); font-size: 18px;">
                     <span id="percentVal">80</span> %
                 </div>
                 <input type="range" id="percentRange" min="50" max="120" step="5" value="80">
@@ -154,20 +158,22 @@
     </div>
 </div>
 
-<!-- 底部鍵盤：使用動態高度避免被網址列遮擋 -->
-<div class="numpad">
-    <div class="key" onclick="press(7)">7</div>
-    <div class="key" onclick="press(8)">8</div>
-    <div class="key" onclick="press(9)">9</div>
-    <div class="key" onclick="press(4)">4</div>
-    <div class="key" onclick="press(5)">5</div>
-    <div class="key" onclick="press(6)">6</div>
-    <div class="key" onclick="press(1)">1</div>
-    <div class="key" onclick="press(2)">2</div>
-    <div class="key" onclick="press(3)">3</div>
-    <div class="key gray" onclick="press('C')">AC</div>
-    <div class="key" onclick="press(0)">0</div>
-    <div class="key gray" onclick="press('X')">⌫</div>
+<!-- 底部鍵盤區域 -->
+<div class="numpad-wrapper">
+    <div class="numpad">
+        <div class="key" onclick="press(7)">7</div>
+        <div class="key" onclick="press(8)">8</div>
+        <div class="key" onclick="press(9)">9</div>
+        <div class="key" onclick="press(4)">4</div>
+        <div class="key" onclick="press(5)">5</div>
+        <div class="key" onclick="press(6)">6</div>
+        <div class="key" onclick="press(1)">1</div>
+        <div class="key" onclick="press(2)">2</div>
+        <div class="key" onclick="press(3)">3</div>
+        <div class="key gray" onclick="press('C')">AC</div>
+        <div class="key" onclick="press(0)">0</div>
+        <div class="key gray" onclick="press('X')">⌫</div>
+    </div>
 </div>
 
 <script>
@@ -240,7 +246,7 @@
     }
 
     document.getElementById('athleteBtn').onclick = () => {
-        document.getElementById('athleteView').style.display = "block";
+        document.getElementById('athleteView').style.display = "flex";
         document.getElementById('coachView').style.display = "none";
         document.getElementById('athleteBtn').classList.add("active");
         document.getElementById('coachBtn').classList.remove("active");
