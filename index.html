@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>2026 秒數計算器 連動旗艦版</title>
+<title>2026 秒數計算器 (強度公式修正版)</title>
 
 <style>
     :root {
@@ -11,7 +11,6 @@
         --bg: #f2f4f8;
         --key-bg: #ffffff;
         --highlight: #fff9c4;
-        --active-line: #e3f2fd;
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     
@@ -56,11 +55,12 @@
     
     #athleteView { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 20px; }
     .percent-label { font-weight: 900; text-align: center; color: var(--primary); font-size: 32px; margin-bottom: 5px; display: block; }
+    .formula-hint { text-align: center; font-size: 11px; color: #999; margin-bottom: 5px; }
     input[type=range] { width: 100%; height: 15px; border-radius: 10px; background: #ddd; outline: none; -webkit-appearance: none; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; background: var(--primary); border-radius: 50%; border: 3px solid #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    
     .result { background: var(--primary); padding: 25px 10px; border-radius: 20px; text-align: center; font-size: 52px; font-weight: 900; color: #fff; letter-spacing: 2px; }
 
-    /* 教練版：滾動與連動高亮 */
     #coachView { overflow-y: auto; background: #fff; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); scroll-behavior: smooth; }
     table { width: 100%; border-collapse: collapse; }
     th { background: #f8f9fa; padding: 15px; font-size: 16px; position: sticky; top: 0; z-index: 5; border-bottom: 2px solid #eee; }
@@ -68,9 +68,7 @@
     .td-pct { font-weight: bold; color: #777; font-size: 18px; width: 25%; }
     .td-res { font-size: 32px; font-weight: 900; color: var(--primary); font-family: monospace; }
     
-    /* 滑桿選中的行高亮 */
-    tr.selected-row { background-color: #fff9c4 !important; outline: 2px solid #ffd600; }
-    /* 100% 基準行標註 */
+    tr.selected-row { background-color: var(--highlight) !important; outline: 2px solid #ffd600; }
     tr.base-line { border-left: 5px solid var(--primary); }
 
     .numpad-wrapper { background: #d1d4d9; padding: 8px 8px calc(env(safe-area-inset-bottom) + 10px) 8px; flex-shrink: 0; }
@@ -87,7 +85,7 @@
 
     <div class="mode-switch">
         <button id="athleteBtn" class="active">選手版</button>
-        <button id="coachBtn">教練版 (自動連動)</button>
+        <button id="coachBtn">教練版 (連動定位)</button>
     </div>
 
     <div class="time-display">
@@ -100,6 +98,7 @@
 
     <div class="view-area">
         <div id="athleteView">
+            <div class="formula-hint">※ 修正公式：強度越高(%)，秒數越短</div>
             <div class="range-container">
                 <div class="percent-label"><span id="percentVal">100</span> %強度</div>
                 <input type="range" id="percentRange" min="50" max="110" step="1" value="100">
@@ -109,7 +108,7 @@
 
         <div id="coachView" style="display:none">
             <table>
-                <thead><tr><th>強度</th><th>換算成績 (1%對照)</th></tr></thead>
+                <thead><tr><th>強度%</th><th>換算成績 (1%對照)</th></tr></thead>
                 <tbody id="coachTable"></tbody>
             </table>
         </div>
@@ -135,7 +134,6 @@
     const range = document.getElementById('percentRange');
     const percentVal = document.getElementById('percentVal');
     const coachTable = document.getElementById('coachTable');
-    const coachView = document.getElementById('coachView');
 
     document.getElementById('athleteBtn').onclick = () => switchMode('athlete');
     document.getElementById('coachBtn').onclick = () => switchMode('coach');
@@ -146,16 +144,12 @@
         document.getElementById('coachBtn').classList.toggle('active', m === 'coach');
         document.getElementById('athleteView').style.display = m === 'athlete' ? 'flex' : 'none';
         document.getElementById('coachView').style.display = m === 'coach' ? 'block' : 'none';
-        
         calculate();
 
-        // 切換到教練版時，自動滾動到被選中的行
         if (m === 'coach') {
             setTimeout(() => {
                 const targetRow = document.querySelector('.selected-row');
-                if (targetRow) {
-                    targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
+                if (targetRow) targetRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 50);
         }
     }
@@ -203,18 +197,23 @@
         const currentP = parseInt(range.value);
 
         percentVal.innerText = currentP;
-        resText.innerText = formatTime(totalBase * (currentP / 100));
+        
+        // 【核心修正公式】：基準時間 / (百分比/100)
+        // 強度 110% = 100 / 1.1 = 秒數變短
+        // 強度 80%  = 100 / 0.8 = 秒數變長
+        const calcRes = totalBase === 0 ? 0 : totalBase / (currentP / 100);
+        resText.innerText = formatTime(calcRes);
 
-        // 重新生成/更新表格
         let html = '';
         for (let p = 110; p >= 50; p--) {
             let rowClass = '';
             if (p === currentP) rowClass = 'selected-row';
             else if (p === 100) rowClass = 'base-line';
 
+            const pTime = totalBase === 0 ? 0 : totalBase / (p / 100);
             html += `<tr class="${rowClass}">
                 <td class="td-pct">${p}%</td>
-                <td class="td-res">${formatTime(totalBase * (p / 100))}</td>
+                <td class="td-res">${formatTime(pTime)}</td>
             </tr>`;
         }
         coachTable.innerHTML = html;
