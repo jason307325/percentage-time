@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>COACH TECH 2026 (百分比全連動版)</title>
+<title>COACH TECH 2026 (一鍵清空版)</title>
 <style>
     :root { --primary: #004aad; --bg: #f2f4f8; --key-bg: #ffffff; --highlight: #fff9c4; --multi: #34c759; --danger: #ff3b30; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
@@ -36,15 +36,16 @@
     /* 教練版 */
     #coachView { overflow-y: auto; background: #fff; border-radius: 14px; scroll-behavior: smooth; }
     table { width: 100%; border-collapse: collapse; }
-    th { padding: 12px; background: #f8f9fa; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #eee; }
     td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f0f0f0; }
     .td-res { font-size: 28px; font-weight: 900; color: var(--primary); font-family: monospace; }
     tr.active-row { background-color: var(--highlight) !important; outline: 2px solid #ffd600; }
 
-    /* 多人版 */
-    .multi-ctrl-header { flex-shrink: 0; padding-bottom: 5px; }
-    .add-btn { width: 100%; padding: 10px; border: 2px solid var(--multi); border-radius: 12px; background: #fff; color: var(--multi); font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
-    .multi-range-container { position: relative; margin-bottom: 10px; height: 40px; display: flex; align-items: center; background: #ddd; border-radius: 20px; padding: 0 4px; }
+    /* 多人版控制項 */
+    .multi-btn-row { display: flex; gap: 5px; margin-bottom: 10px; flex-shrink: 0; }
+    .add-btn { flex: 2; padding: 10px; border: 2px solid var(--multi); border-radius: 12px; background: #fff; color: var(--multi); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; }
+    .clear-btn { flex: 1; padding: 10px; border: 2px solid var(--danger); border-radius: 12px; background: #fff; color: var(--danger); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 5px; cursor: pointer; font-size: 13px; }
+
+    .multi-range-container { position: relative; margin-bottom: 10px; height: 40px; display: flex; align-items: center; background: #ddd; border-radius: 20px; padding: 0 4px; flex-shrink: 0; }
     .multi-range { width: 100%; height: 100%; -webkit-appearance: none; background: transparent; z-index: 3; }
     .multi-range::-webkit-slider-thumb { -webkit-appearance: none; width: 80px; height: 32px; background: var(--multi); border-radius: 16px; border: 2px solid #fff; }
     .range-val-bubble { position: absolute; pointer-events: none; top: 50%; transform: translate(-50%, -50%); z-index: 4; color: #fff; font-weight: 900; font-size: 16px; width: 80px; text-align: center; }
@@ -60,7 +61,6 @@
     .numpad-wrapper { background: #d1d4d9; padding: 8px 8px calc(env(safe-area-inset-bottom) + 5px) 8px; flex-shrink: 0; }
     .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 400px; margin: 0 auto; }
     .key { background: var(--key-bg); height: 50px; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: 600; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); cursor: pointer; }
-    .key.gray { background: #a6abb4; color: #fff; }
 </style>
 </head>
 <body>
@@ -90,12 +90,13 @@
             <table><thead><tr><th>強度</th><th>換算成績 (2-X%)</th></tr></thead><tbody id="coachTable"></tbody></table>
         </div>
         <div id="multiView">
-            <div class="multi-ctrl-header">
-                <button class="add-btn" onclick="addNewAthlete()">＋ 新增選手 (當前: <span id="athCount">4</span> 人)</button>
-                <div class="multi-range-container">
-                    <div class="range-val-bubble" id="multiBubble">100%</div>
-                    <input type="range" class="multi-range" id="mRange" min="50" max="110" step="1" value="100">
-                </div>
+            <div class="multi-btn-row">
+                <button class="add-btn" onclick="addNewAthlete()">＋ 新增選手</button>
+                <button class="clear-btn" onclick="clearAllData()">🗑 清空</button>
+            </div>
+            <div class="multi-range-container">
+                <div class="range-val-bubble" id="multiBubble">100%</div>
+                <input type="range" class="multi-range" id="mRange" min="50" max="110" step="1" value="100">
             </div>
             <div id="multiCardsArea">
                 <div id="multiCardsList"></div>
@@ -131,18 +132,9 @@
         document.getElementById('athleteView').style.display = m === 'athlete' ? 'flex' : 'none';
         document.getElementById('coachView').style.display = m === 'coach' ? 'block' : 'none';
         document.getElementById('multiView').style.display = m === 'multi' ? 'flex' : 'none';
-        
-        if (m === 'multi') {
-            setMultiTarget(multiTargetIdx);
-        } else {
-            focusBox(0);
-            calculate(); // 確保切換時數據最新
-            if (m === 'coach') {
-                // 連動定位：切換到教練版時自動滾動到當前百分比
-                setTimeout(scrollToActiveRow, 100);
-            }
-        }
+        if (m === 'multi') setMultiTarget(multiTargetIdx); else focusBox(0);
         calculate();
+        if (m === 'coach') setTimeout(scrollToActiveRow, 100);
     }
 
     function scrollToActiveRow() {
@@ -154,6 +146,17 @@
         multiAthletes.push({vals: ["00","00","00"]});
         setMultiTarget(multiAthletes.length - 1);
         calculate();
+    }
+
+    function clearAllData() {
+        if (confirm("確定要清空所有選手的成績嗎？\n(這將重置所有數據並恢復為4位選手)")) {
+            multiAthletes = [{vals:["00","00","00"]},{vals:["00","00","00"]},{vals:["00","00","00"]},{vals:["00","00","00"]}];
+            singleValues = ["00", "00", "00"];
+            multiTargetIdx = 0;
+            calculate();
+            renderMultiCards();
+            updateInputDisplay();
+        }
     }
 
     function deleteAthlete(idx, e) {
@@ -173,7 +176,6 @@
 
     function renderMultiCards() {
         const list = document.getElementById('multiCardsList');
-        document.getElementById('athCount').innerText = multiAthletes.length;
         list.innerHTML = "";
         const mPct = parseInt(mRange.value);
         const canDelete = multiAthletes.length > 4;
@@ -225,23 +227,19 @@
     function calculate() {
         const base = toSec(singleValues);
         const aPct = parseInt(mainRange.value);
-        
-        // 選手版與氣泡位置
         athleteBubble.innerText = aPct + '%';
         athleteBubble.style.left = `calc(45px + ${(aPct - 50) / 60} * (100% - 90px))`;
         document.getElementById('resText').innerText = formatTime(base * (2 - aPct / 100));
 
-        // 教練版 (強制連動百分比高亮)
         if (currentMode === 'coach') {
             let html = "";
             for (let i = 110; i >= 50; i--) {
                 const rowTime = formatTime(base * (2 - i / 100));
-                html += `<tr class="${i == aPct ? 'active-row' : ''}"><td>${i}%</td><td class="td-res">${rowTime}</td></tr>`;
+                html += `<tr class="${i==aPct?'active-row':''}"><td>${i}%</td><td class="td-res">${rowTime}</td></tr>`;
             }
             document.getElementById('coachTable').innerHTML = html;
         }
 
-        // 多人模式百分比 (獨立於選手/教練版)
         const mPct = parseInt(mRange.value);
         multiBubble.innerText = mPct + '%';
         multiBubble.style.left = `calc(40px + ${(mPct - 50) / 60} * (100% - 80px))`;
@@ -261,11 +259,7 @@
         return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}.${ms.toString().padStart(2,'0')}`;
     }
 
-    mainRange.oninput = () => {
-        calculate();
-        // 如果在教練版調整選手滑桿，即時滾動
-        if (currentMode === 'coach') scrollToActiveRow();
-    };
+    mainRange.oninput = () => { calculate(); if (currentMode === 'coach') scrollToActiveRow(); };
     mRange.oninput = calculate; 
     calculate();
 </script>
