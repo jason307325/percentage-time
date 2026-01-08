@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>COACH TECH 2026 (修正版)</title>
+<title>COACH TECH 2026 (連動優化版)</title>
 <style>
     :root { --primary: #004aad; --bg: #f2f4f8; --key-bg: #ffffff; --highlight: #fff9c4; --multi: #34c759; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
@@ -33,12 +33,13 @@
     .athlete-val-bubble { position: absolute; pointer-events: none; top: 50%; transform: translate(-50%, -50%); z-index: 4; color: #fff; font-weight: 900; font-size: 20px; width: 90px; text-align: center; }
     .result { background: var(--primary); padding: 25px 10px; border-radius: 20px; text-align: center; font-size: 52px; font-weight: 900; color: #fff; }
 
-    /* 教練版 */
-    #coachView { overflow-y: auto; background: #fff; border-radius: 14px; }
+    /* 教練版 (增加滾動平滑) */
+    #coachView { overflow-y: auto; background: #fff; border-radius: 14px; scroll-behavior: smooth; }
     table { width: 100%; border-collapse: collapse; }
-    th { padding: 12px; background: #f8f9fa; position: sticky; top: 0; }
+    th { padding: 12px; background: #f8f9fa; position: sticky; top: 0; z-index: 10; border-bottom: 1px solid #eee; }
     td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f0f0f0; }
     .td-res { font-size: 28px; font-weight: 900; color: var(--primary); font-family: monospace; }
+    tr.active-row { background-color: var(--highlight) !important; outline: 2px solid #ffd600; }
 
     /* 多人版 */
     #multiView { justify-content: space-between; padding-bottom: 5px; }
@@ -52,7 +53,7 @@
 
     .numpad-wrapper { background: #d1d4d9; padding: 8px 8px calc(env(safe-area-inset-bottom) + 5px) 8px; flex-shrink: 0; }
     .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 400px; margin: 0 auto; }
-    .key { background: var(--key-bg); height: 52px; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: 600; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); }
+    .key { background: var(--key-bg); height: 52px; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: 600; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); cursor: pointer; }
     .key.gray { background: #a6abb4; color: #fff; }
 </style>
 </head>
@@ -121,8 +122,22 @@
         document.getElementById('athleteView').style.display = m === 'athlete' ? 'flex' : 'none';
         document.getElementById('coachView').style.display = m === 'coach' ? 'block' : 'none';
         document.getElementById('multiView').style.display = m === 'multi' ? 'flex' : 'none';
-        if (m === 'multi') setMultiTarget(multiTargetIdx); else focusBox(0);
+        
+        if (m === 'multi') {
+            setMultiTarget(multiTargetIdx);
+        } else {
+            focusBox(0);
+            if (m === 'coach') {
+                calculate();
+                setTimeout(scrollToActiveRow, 100);
+            }
+        }
         calculate();
+    }
+
+    function scrollToActiveRow() {
+        const activeRow = document.querySelector('.active-row');
+        if (activeRow) activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
     function setMultiTarget(idx) {
@@ -158,6 +173,8 @@
 
     function calculate() {
         const base = toSec(singleValues);
+        
+        // 選手版與教練版百分比連動
         const aPct = mainRange.value;
         athleteBubble.innerText = aPct + '%';
         athleteBubble.style.left = `calc(22.5px + ${(aPct - 50) / 60} * (100% - 45px))`;
@@ -165,10 +182,14 @@
 
         if (currentMode === 'coach') {
             let html = "";
-            for (let i = 110; i >= 50; i--) html += `<tr style="${i==aPct?'background:var(--highlight)':''}"><td>${i}%</td><td class="td-res">${formatTime(base * (100 / i))}</td></tr>`;
+            for (let i = 110; i >= 50; i--) {
+                const isActive = (i == aPct);
+                html += `<tr class="${isActive ? 'active-row' : ''}"><td>${i}%</td><td class="td-res">${formatTime(base * (100 / i))}</td></tr>`;
+            }
             document.getElementById('coachTable').innerHTML = html;
         }
 
+        // 多人模式百分比獨立
         const mPct = mRange.value;
         multiBubble.innerText = mPct + '%';
         multiBubble.style.left = `calc(20px + ${(mPct - 50) / 60} * (100% - 40px))`;
@@ -179,8 +200,8 @@
         });
     }
 
-    // 核心修正：正確解析分、秒、毫秒陣列
     function toSec(arr) {
+        // 修正計算邏輯：分*60 + 秒 + 毫秒/100
         return (parseInt(arr[0]) * 60) + parseInt(arr[1]) + (parseInt(arr[2]) / 100);
     }
 
@@ -190,7 +211,9 @@
         return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}.${ms.toString().padStart(2,'0')}`;
     }
 
-    mainRange.oninput = calculate; mRange.oninput = calculate; calculate();
+    mainRange.oninput = () => { calculate(); }; 
+    mRange.oninput = calculate; 
+    calculate();
 </script>
 </body>
 </html>
