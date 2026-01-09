@@ -2,242 +2,266 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>COACH TECH 2026 (滑桿優化版)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>COACH TECH 2026 (觸控優化版)</title>
 <style>
-:root {
-    --primary: #004aad;
-    --bg: #f2f4f8;
-    --key-bg: #ffffff;
-    --highlight: #fff9c4;
-    --multi: #34c759;
-    --danger: #ff3b30;
-}
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg);
-    margin: 0; padding: 0;
-    height: 100dvh; width: 100vw;
-    display: flex; flex-direction: column;
-    overflow: hidden;
-    padding-top: calc(env(safe-area-inset-top) + 5px);
-}
-.container { flex: 1; padding: 2px 15px; display: flex; flex-direction: column; max-width: 420px; margin: auto; width: 100%; overflow: hidden; }
-h1 { text-align: center; margin: 0 0 5px 0; font-size: 13px; color: #999; letter-spacing: 1px; }
+    :root { --primary: #004aad; --bg: #f2f4f8; --key-bg: #ffffff; --highlight: #fff9c4; --multi: #34c759; --danger: #ff3b30; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 0; height: 100dvh; width: 100vw; display: flex; flex-direction: column; overflow: hidden; padding-top: calc(env(safe-area-inset-top) + 5px); }
+    .container { flex: 1; padding: 2px 15px; display: flex; flex-direction: column; max-width: 420px; margin: auto; width: 100%; overflow: hidden; }
+    h1 { text-align: center; margin: 0 0 5px 0; font-size: 13px; color: #999; letter-spacing: 1px; }
+    
+    /* 模式切換 */
+    .mode-switch { display: flex; gap: 5px; margin-bottom: 8px; flex-shrink: 0; }
+    .mode-switch button { flex: 1; padding: 10px 2px; border: none; border-radius: 10px; background: #ddd; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
+    .mode-switch button.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(0,74,173,0.3); }
+    .mode-switch button.active.multi-btn { background: var(--multi); box-shadow: 0 4px 10px rgba(52,199,89,0.3); }
 
-/* 模式切換 */
-.mode-switch { display: flex; gap: 5px; margin-bottom: 8px; flex-shrink: 0; }
-.mode-switch button { flex: 1; padding: 10px 2px; border: none; border-radius: 10px; background: #ddd; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
-.mode-switch button.active { background: var(--primary); color: #fff; box-shadow: 0 4px 10px rgba(0,74,173,0.3); }
-.mode-switch button.active.multi-btn { background: var(--multi); box-shadow: 0 4px 10px rgba(52,199,89,0.3); }
+    /* 時間顯示 */
+    .time-display { display: flex; align-items: center; justify-content: center; gap: 6px; background: #fff; padding: 10px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 8px; flex-shrink: 0; }
+    .unit-box { flex: 1; text-align: center; border: 2.5px solid #eee; border-radius: 10px; padding: 6px 0; font-size: 24px; font-weight: 800; color: #333; }
+    .unit-box.active { border-color: var(--primary); background: #f0f7ff; color: var(--primary); }
+    .unit-box span { font-size: 10px; display: block; color: #999; margin-top: -2px; }
+    .sep { font-size: 20px; font-weight: bold; color: #ccc; }
 
-/* 時間顯示 */
-.time-display { display: flex; align-items: center; justify-content: center; gap: 6px; background: #fff; padding: 10px; border-radius: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 8px; flex-shrink: 0; }
-.unit-box { flex: 1; text-align: center; border: 2.5px solid #eee; border-radius: 10px; padding: 6px 0; font-size: 24px; font-weight: 800; color: #333; cursor: pointer; }
-.unit-box.active { border-color: var(--primary); background: #f0f7ff; color: var(--primary); }
-.unit-box span { font-size: 10px; display: block; color: #999; margin-top: -2px; }
-.sep { font-size: 20px; font-weight: bold; color: #ccc; }
+    .view-area { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+    #athleteView, #coachView, #multiView { width: 100%; height: 100%; display: none; flex-direction: column; }
 
-.view-area { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
-#athleteView, #coachView, #multiView { width: 100%; height: 100%; display: none; flex-direction: column; }
+    /* --- 滑桿優化共通樣式 --- */
+    .range-wrapper { position: relative; width: 100%; height: 50px; background: #ddd; border-radius: 25px; display: flex; align-items: center; padding: 0 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); touch-action: none; }
+    input[type=range] { width: 100%; height: 100%; -webkit-appearance: none; background: transparent; z-index: 3; position: relative; cursor: pointer; }
+    
+    /* 滑塊外觀 */
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 90px; height: 42px; background: var(--primary); border-radius: 21px; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+    .multi-range::-webkit-slider-thumb { background: var(--multi); width: 80px; height: 34px; }
 
-/* 滑桿共用樣式 */
-.range-wrapper { position: relative; width: 100%; height: 50px; background: #ddd; border-radius: 25px; display: flex; align-items: center; padding: 0 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); touch-action: none; }
-input[type=range] { width: 100%; height: 100%; -webkit-appearance: none; background: transparent; z-index: 3; position: relative; cursor: pointer; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 90px; height: 42px; background: var(--primary); border-radius: 21px; border: 3px solid #fff; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-input[type=range]::-moz-range-thumb { width: 90px; height: 42px; background: var(--primary); border-radius: 21px; border: 3px solid #fff; }
-.multi-range::-webkit-slider-thumb { background: var(--multi); width: 80px; height: 34px; }
-.multi-range::-moz-range-thumb { background: var(--multi); width: 80px; height: 34px; }
+    /* 氣泡動態跟隨 */
+    .bubble { position: absolute; pointer-events: none; top: 50%; transform: translate(-50%, -50%); z-index: 4; color: #fff; font-weight: 900; font-size: 20px; text-align: center; transition: left 0.1s ease-out; }
 
-/* 滑軌顏色 */
-input[type=range]::-webkit-slider-runnable-track { background: #ddd; height: 100%; border-radius: 25px; }
-.multi-range::-webkit-slider-runnable-track { background: rgba(52,199,89,0.25); height: 100%; border-radius: 25px; }
-input[type=range]::-moz-range-track { background: #ddd; height: 100%; border-radius: 25px; }
-.multi-range::-moz-range-track { background: rgba(52,199,89,0.25); height: 100%; border-radius: 25px; }
+    /* 選手版成績 */
+    #athleteView { justify-content: center; gap: 25px; padding: 10px 0; }
+    .result { background: var(--primary); padding: 22px 10px; border-radius: 20px; text-align: center; font-size: 52px; font-weight: 900; color: #fff; box-shadow: 0 4px 12px rgba(0,74,173,0.2); }
 
-/* bubble */
-.bubble { position: absolute; top: -28px; transform: translateX(-50%); pointer-events: none; font-weight: 900; font-size: 18px; color: #fff; z-index: 5; white-space: nowrap; }
+    /* 教練版表格 */
+    #coachView { overflow-y: auto; background: #fff; border-radius: 14px; scroll-behavior: smooth; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+    .td-res { font-size: 28px; font-weight: 900; color: var(--primary); font-family: monospace; }
+    tr.active-row { background-color: var(--highlight) !important; outline: 2px solid #ffd600; }
 
-/* 選手版成績 */
-#athleteView { justify-content: center; gap: 25px; padding: 10px 0; }
-.result { background: var(--primary); padding: 22px 10px; border-radius: 20px; text-align: center; font-size: 52px; font-weight: 900; color: #fff; box-shadow: 0 4px 12px rgba(0,74,173,0.2); }
+    /* 多人模式控制列 */
+    .multi-btn-row { display: flex; gap: 5px; margin-bottom: 10px; flex-shrink: 0; }
+    .add-btn { flex: 2; padding: 10px; border: 2px solid var(--multi); border-radius: 12px; background: #fff; color: var(--multi); font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .clear-btn { flex: 1; padding: 10px; border: 2px solid var(--danger); border-radius: 12px; background: #fff; color: var(--danger); font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    
+    #multiCardsArea { flex: 1; overflow-y: auto; padding-bottom: 10px; }
+    .multi-card { background: #fff; border-radius: 14px; padding: 10px 12px; border-left: 6px solid var(--multi); box-shadow: 0 2px 5px rgba(0,0,0,0.06); display: flex; align-items: center; margin-bottom: 8px; }
+    .multi-res { font-size: 30px; font-weight: 900; color: var(--multi); font-family: monospace; letter-spacing: -1px; margin-right: 10px; }
+    .del-btn { background: var(--danger); color: #fff; border: none; width: 32px; height: 32px; border-radius: 8px; font-size: 14px; cursor: pointer; }
 
-/* 教練版表格 */
-#coachView { overflow-y: auto; background: #fff; border-radius: 14px; scroll-behavior: smooth; }
-table { width: 100%; border-collapse: collapse; }
-td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f0f0f0; }
-.td-res { font-size: 28px; font-weight: 900; color: var(--primary); font-family: monospace; }
-
-/* 多人模式 */
-.multi-btn-row { display: flex; gap: 5px; margin-bottom: 10px; flex-shrink: 0; }
-.add-btn { flex: 2; padding: 10px; border: 2px solid var(--multi); border-radius: 12px; background: #fff; color: var(--multi); font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.clear-btn { flex: 1; padding: 10px; border: 2px solid var(--danger); border-radius: 12px; background: #fff; color: var(--danger); font-weight: bold; cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; }
-#multiCardsList { flex: 1; overflow-y: auto; padding-bottom: 10px; }
-.multi-card { background: #fff; border-radius: 14px; padding: 10px 12px; border-left: 6px solid var(--multi); box-shadow: 0 2px 5px rgba(0,0,0,0.06); display: flex; align-items: center; margin-bottom: 8px; }
-.multi-res { font-size: 30px; font-weight: 900; color: var(--multi); font-family: monospace; letter-spacing: -1px; margin-right: 10px; }
-.del-btn { background: var(--danger); color: #fff; border: none; width: 32px; height: 32px; border-radius: 8px; font-size: 14px; cursor: pointer; }
-
-/* 鍵盤 */
-.numpad-wrapper { background: #d1d4d9; padding: 8px 8px calc(env(safe-area-inset-bottom) + 5px) 8px; flex-shrink: 0; }
-.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 400px; margin: 0 auto; }
-.key { background: var(--key-bg); height: 50px; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: 600; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); cursor: pointer; }
-.key.gray { background: #a6abb4; color: #fff; }
+    /* 鍵盤 */
+    .numpad-wrapper { background: #d1d4d9; padding: 8px 8px calc(env(safe-area-inset-bottom) + 5px) 8px; flex-shrink: 0; }
+    .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 400px; margin: 0 auto; }
+    .key { background: var(--key-bg); height: 50px; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: 600; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.15); cursor: pointer; }
+    .key.gray { background: #a6abb4; color: #fff; }
 </style>
 </head>
 <body>
 <div class="container">
-<h1>COACH TECH 2026</h1>
-<div class="mode-switch">
-<button id="athleteBtn" class="active">選手版</button>
-<button id="coachBtn">教練版</button>
-<button id="multiBtn" class="multi-btn">多人模式</button>
-</div>
-
-<div class="time-display">
-    <div id="box-0" class="unit-box active" onclick="focusBox(0)">00<span>分</span></div>
-    <div class="sep">:</div>
-    <div id="box-1" class="unit-box" onclick="focusBox(1)">00<span>秒</span></div>
-    <div class="sep">.</div>
-    <div id="box-2" class="unit-box" onclick="focusBox(2)">00<span>毫秒</span></div>
-</div>
-
-<div class="view-area">
-<!-- 選手版 -->
-<div id="athleteView" style="display:flex">
-    <div class="range-wrapper">
-        <div class="bubble" id="athleteBubble">100%</div>
-        <input type="range" id="mainRange" min="50" max="110" value="100">
+    <h1>COACH TECH 2026</h1>
+    <div class="mode-switch">
+        <button id="athleteBtn" class="active">選手版</button>
+        <button id="coachBtn">教練版</button>
+        <button id="multiBtn" class="multi-btn">多人模式</button>
     </div>
-    <div id="resText" class="result">00:00.00</div>
+    <div class="time-display">
+        <div id="box-0" class="unit-box active" onclick="focusBox(0)">00<span>分</span></div>
+        <div class="sep">:</div>
+        <div id="box-1" class="unit-box" onclick="focusBox(1)">00<span>秒</span></div>
+        <div class="sep">.</div>
+        <div id="box-2" class="unit-box" onclick="focusBox(2)">00<span>毫秒</span></div>
+    </div>
+    <div class="view-area">
+        <!-- 選手版 -->
+        <div id="athleteView" style="display:flex">
+            <div class="range-wrapper">
+                <div class="bubble" id="athleteBubble" style="width: 90px;">100%</div>
+                <input type="range" id="mainRange" min="50" max="110" step="1" value="100">
+            </div>
+            <div id="resText" class="result">00:00.00</div>
+        </div>
+        <!-- 教練版 -->
+        <div id="coachView">
+            <table><thead><tr><th>強度</th><th>換算成績 (2-X%)</th></tr></thead><tbody id="coachTable"></tbody></table>
+        </div>
+        <!-- 多人版 -->
+        <div id="multiView">
+            <div class="multi-btn-row">
+                <button class="add-btn" onclick="addNewAthlete()">＋ 新增選手</button>
+                <button class="clear-btn" onclick="clearAllData()">🗑 清空</button>
+            </div>
+            <div class="range-wrapper" style="height: 40px; margin-bottom: 10px;">
+                <div class="bubble" id="multiBubble" style="width: 80px; font-size: 16px;">100%</div>
+                <input type="range" class="multi-range" id="mRange" min="50" max="110" step="1" value="100">
+            </div>
+            <div id="multiCardsArea">
+                <div id="multiCardsList"></div>
+            </div>
+        </div>
+    </div>
 </div>
-
-<!-- 教練版 -->
-<div id="coachView">
-<table>
-<thead><tr><th>強度</th><th>換算成績</th></tr></thead>
-<tbody id="coachTable"></tbody>
-</table>
-</div>
-
-<!-- 多人模式 -->
-<div id="multiView">
-<div class="multi-btn-row">
-    <button class="add-btn" onclick="addNewAthlete()">＋ 新增選手</button>
-    <button class="clear-btn" onclick="clearAllData()">🗑 清空</button>
-</div>
-<div class="range-wrapper" style="height:40px">
-    <div class="bubble" id="multiBubble">100%</div>
-    <input type="range" class="multi-range" id="mRange" min="50" max="110" value="100">
-</div>
-<div id="multiCardsList"></div>
-</div>
-</div>
-</div>
-
 <div class="numpad-wrapper">
-<div class="numpad">
-<div class="key" onclick="press(7)">7</div>
-<div class="key" onclick="press(8)">8</div>
-<div class="key" onclick="press(9)">9</div>
-<div class="key" onclick="press(4)">4</div>
-<div class="key" onclick="press(5)">5</div>
-<div class="key" onclick="press(6)">6</div>
-<div class="key" onclick="press(1)">1</div>
-<div class="key" onclick="press(2)">2</div>
-<div class="key" onclick="press(3)">3</div>
-<div class="key gray" onclick="backspace()">⌫</div>
-<div class="key" onclick="press(0)">0</div>
-<div class="key gray" onclick="clearInput()">C</div>
-</div>
+    <div class="numpad">
+        <div class="key" onclick="press(7)">7</div><div class="key" onclick="press(8)">8</div><div class="key" onclick="press(9)">9</div>
+        <div class="key" onclick="press(4)">4</div><div class="key" onclick="press(5)">5</div><div class="key" onclick="press(6)">6</div>
+        <div class="key" onclick="press(1)">1</div><div class="key" onclick="press(2)">2</div><div class="key" onclick="press(3)">3</div>
+        <div class="key gray" onclick="press('C')">AC</div><div class="key" onclick="press(0)">0</div><div class="key gray" onclick="press('X')">⌫</div>
+    </div>
 </div>
 
 <script>
-// ===== 狀態 =====
-let focusIndex = 0
-let time = ["00","00","00"]
-let multiList = []
+    let currentFocus = 0, currentMode = 'athlete', multiTargetIdx = 0;
+    let singleValues = ["00", "00", "00"];
+    let multiAthletes = [{vals:["00","00","00"]},{vals:["00","00","00"]},{vals:["00","00","00"]},{vals:["00","00","00"]}];
+    let isNewInput = true;
 
-// ===== 輸入 =====
-function focusBox(i){
-    focusIndex = i
-    document.querySelectorAll(".unit-box").forEach(b=>b.classList.remove("active"))
-    document.getElementById("box-"+i).classList.add("active")
-}
+    const mainRange = document.getElementById('mainRange'), athleteBubble = document.getElementById('athleteBubble'), mRange = document.getElementById('mRange'), multiBubble = document.getElementById('multiBubble');
 
-function press(n){
-    let v = time[focusIndex].replace(/^0/,"") + n
-    time[focusIndex] = v.slice(-2).padStart(2,"0")
-    updateTime()
-}
+    document.getElementById('athleteBtn').onclick = () => switchMode('athlete');
+    document.getElementById('coachBtn').onclick = () => switchMode('coach');
+    document.getElementById('multiBtn').onclick = () => switchMode('multi');
 
-function backspace(){ time[focusIndex] = "00"; updateTime() }
-function clearInput(){ time = ["00","00","00"]; updateTime() }
-
-function updateTime(){
-    time.forEach((v,i)=>document.getElementById("box-"+i).childNodes[0].nodeValue=v)
-    document.getElementById("resText").textContent = `${time[0]}:${time[1]}.${time[2]}`
-    buildCoachTable()
-}
-
-// ===== 滑桿數字跟隨 =====
-function updateBubble(range, bubble, thumbWidth){
-    const min = range.min
-    const max = range.max
-    const val = range.value
-    bubble.textContent = val + "%"
-    const rangeWidth = range.offsetWidth
-    const usableWidth = rangeWidth - thumbWidth
-    const percent = (val - min) / (max - min)
-    const left = percent * usableWidth + thumbWidth / 2
-    bubble.style.left = left + "px"
-}
-
-mainRange.oninput = ()=>updateBubble(mainRange, athleteBubble, 90)
-mRange.oninput = ()=>updateBubble(mRange, multiBubble, 80)
-
-// ===== 教練表 =====
-function buildCoachTable(){
-    coachTable.innerHTML = ""
-    for(let p=90;p<=110;p+=5){
-        let tr = document.createElement("tr")
-        tr.innerHTML = `<td>${p}%</td><td class="td-res">${calcResult(p)}</td>`
-        coachTable.appendChild(tr)
+    function switchMode(m) {
+        currentMode = m;
+        document.querySelectorAll('.mode-switch button').forEach(b => b.classList.remove('active'));
+        document.getElementById(m + 'Btn').classList.add('active');
+        document.getElementById('athleteView').style.display = m === 'athlete' ? 'flex' : 'none';
+        document.getElementById('coachView').style.display = m === 'coach' ? 'block' : 'none';
+        document.getElementById('multiView').style.display = m === 'multi' ? 'flex' : 'none';
+        if (m === 'multi') setMultiTarget(multiTargetIdx); else focusBox(0);
+        calculate();
+        if (m === 'coach') setTimeout(scrollToActiveRow, 150);
     }
-}
 
-function calcResult(p){
-    let base = time.join("")
-    return base==="000000"?"--:--.--":`${time[0]}:${time[1]}.${time[2]}`
-}
+    function scrollToActiveRow() {
+        const activeRow = document.querySelector('.active-row');
+        if (activeRow) activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
-// ===== 多人模式 =====
-function addNewAthlete(){ multiList.push(`${time[0]}:${time[1]}.${time[2]}`); renderMulti() }
-function clearAllData(){ multiList=[]; renderMulti() }
-function renderMulti(){
-    multiCardsList.innerHTML=""
-    multiList.forEach((t,i)=>{
-        let d=document.createElement("div")
-        d.className="multi-card"
-        d.innerHTML=`<div class="multi-res">${t}</div>
-        <button class="del-btn" onclick="multiList.splice(${i},1);renderMulti()">✕</button>`
-        multiCardsList.appendChild(d)
-    })
-}
+    function addNewAthlete() {
+        multiAthletes.push({vals: ["00","00","00"]});
+        setMultiTarget(multiAthletes.length - 1);
+        calculate();
+    }
 
-// ===== 模式切換 =====
-athleteBtn.onclick=()=>switchView("athlete")
-coachBtn.onclick=()=>switchView("coach")
-multiBtn.onclick=()=>switchView("multi")
-function switchView(m){
-    athleteView.style.display = m==="athlete"?"flex":"none"
-    coachView.style.display = m==="coach"?"block":"none"
-    multiView.style.display = m==="multi"?"flex":"none"
-}
+    function clearAllData() {
+        if (confirm("確定要清空所有數據嗎？")) {
+            multiAthletes = [{vals:["00","00","00"]},{vals:["00","00","00"]},{vals:["00","00","00"]},{vals:["00","00","00"]}];
+            singleValues = ["00", "00", "00"];
+            multiTargetIdx = 0;
+            calculate();
+        }
+    }
 
-// 初始化 bubble
-updateBubble(mainRange, athleteBubble, 90)
-updateBubble(mRange, multiBubble, 80)
+    function deleteAthlete(idx, e) {
+        e.stopPropagation();
+        if (multiAthletes.length <= 4) return;
+        multiAthletes.splice(idx, 1);
+        if (multiTargetIdx >= multiAthletes.length) multiTargetIdx = multiAthletes.length - 1;
+        setMultiTarget(multiTargetIdx);
+        calculate();
+    }
+
+    function setMultiTarget(idx) {
+        multiTargetIdx = idx;
+        renderMultiCards();
+        focusBox(0);
+    }
+
+    function renderMultiCards() {
+        const list = document.getElementById('multiCardsList');
+        list.innerHTML = "";
+        const mPct = parseInt(mRange.value);
+        const canDelete = multiAthletes.length > 4;
+        multiAthletes.forEach((ath, i) => {
+            const base = toSec(ath.vals);
+            const curTime = formatTime(base * (2 - mPct / 100));
+            const card = document.createElement('div');
+            card.className = 'multi-card';
+            if (i === multiTargetIdx) card.style.background = 'var(--highlight)';
+            card.onclick = () => setMultiTarget(i);
+            card.innerHTML = `<div style="flex:1"><span style="font-weight:bold;font-size:14px;color:#555">選手 ${i+1}</span><br><span style="font-size:11px;color:#aaa">100%: ${formatTime(base)}</span></div><div class="multi-res">${curTime}</div><button class="del-btn" ${canDelete ? '' : 'disabled'} onclick="deleteAthlete(${i}, event)">🗑</button>`;
+            list.appendChild(card);
+        });
+    }
+
+    function focusBox(idx) { currentFocus = idx; isNewInput = true; updateInputDisplay(); }
+
+    function updateInputDisplay() {
+        let activeData = (currentMode === 'multi') ? multiAthletes[multiTargetIdx].vals : singleValues;
+        for (let i = 0; i < 3; i++) {
+            const box = document.getElementById('box-' + i);
+            box.classList.toggle('active', i === currentFocus);
+            box.innerHTML = activeData[i] + `<span>${['分','秒','毫秒'][i]}</span>`;
+        }
+    }
+
+    function press(key) {
+        let activeData = (currentMode === 'multi') ? multiAthletes[multiTargetIdx].vals : singleValues;
+        if (key === 'C') { activeData.fill("00"); currentFocus = 0; isNewInput = true; }
+        else if (key === 'X') {
+            if (activeData[currentFocus] === "00" && currentFocus > 0) { currentFocus--; activeData[currentFocus] = "00"; }
+            else activeData[currentFocus] = "00";
+            isNewInput = true;
+        } else {
+            if (isNewInput) { activeData[currentFocus] = "0" + key; isNewInput = false; }
+            else { activeData[currentFocus] = (activeData[currentFocus].slice(-1) + key).slice(-2); if (currentFocus < 2) { currentFocus++; isNewInput = true; } }
+        }
+        updateInputDisplay(); calculate();
+    }
+
+    function calculate() {
+        const base = toSec(singleValues);
+        const aPct = parseInt(mainRange.value);
+        
+        // 更新氣泡位置 (優化計算公式)
+        athleteBubble.innerText = aPct + '%';
+        athleteBubble.style.left = `calc(45px + ${(aPct - 50) / 60} * (100% - 90px))`;
+        document.getElementById('resText').innerText = formatTime(base * (2 - aPct / 100));
+
+        if (currentMode === 'coach') {
+            let html = "";
+            for (let i = 110; i >= 50; i--) {
+                const rowTime = formatTime(base * (2 - i / 100));
+                html += `<tr class="${i == aPct ? 'active-row' : ''}"><td>${i}%</td><td class="td-res">${rowTime}</td></tr>`;
+            }
+            document.getElementById('coachTable').innerHTML = html;
+        }
+
+        const mPct = parseInt(mRange.value);
+        multiBubble.innerText = mPct + '%';
+        multiBubble.style.left = `calc(40px + ${(mPct - 50) / 60} * (100% - 80px))`;
+        if (currentMode === 'multi') renderMultiCards();
+    }
+
+    // 邏輯核心修正：正確解析陣列索引 [分, 秒, 毫秒]
+    function toSec(arr) {
+        return (parseInt(arr[0]) * 60) + parseInt(arr[1]) + (parseInt(arr[2]) / 100);
+    }
+
+    function formatTime(s) {
+        if (!s || s <= 0) return "00:00.00";
+        // 修正浮點數進位誤差
+        const totalMs = Math.round(s * 100);
+        const m = Math.floor(totalMs / 6000);
+        const sec = Math.floor((totalMs % 6000) / 100);
+        const ms = totalMs % 100;
+        return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}.${ms.toString().padStart(2,'0')}`;
+    }
+
+    mainRange.oninput = () => { calculate(); if (currentMode === 'coach') scrollToActiveRow(); };
+    mRange.oninput = calculate; 
+    calculate();
 </script>
 </body>
 </html>
