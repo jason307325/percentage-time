@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>COACH TECH 2026</title>
 <style>
-    :root { --primary: #004aad; --bg: #f2f4f8; --key-bg: #ffffff; --highlight: #fff9c4; --multi: #34c759; --danger: #ff3b30; }
+    :root { --primary: #004aad; --bg: #f2f4f8; --key-bg: #ffffff; --highlight: #fff9c4; --multi: #34c759; --danger: #ff3b30; --gray: #8e8e93; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body { height: 100%; overflow: hidden; position: fixed; width: 100%; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); margin: 0; padding: 0; display: flex; flex-direction: column; padding-top: calc(env(safe-area-inset-top) + 5px); }
@@ -26,12 +26,11 @@
     .view-area { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
     #athleteView, #coachView, #multiView { width: 100%; height: 100%; display: none; flex-direction: column; }
 
-    /* 滑桿樣式 */
+    /* 滑桿與氣泡 */
     .range-wrapper { position: relative; width: 100%; height: 46px; background: #ddd; border-radius: 23px; display: flex; align-items: center; padding: 0 4px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); touch-action: none; margin: 5px 0; flex-shrink: 0; }
     input[type=range] { width: 100%; height: 100%; -webkit-appearance: none; background: transparent; z-index: 3; position: relative; cursor: pointer; }
     input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 84px; height: 38px; background: var(--primary); border-radius: 19px; border: 2.5px solid #fff; box-shadow: 0 3px 6px rgba(0,0,0,0.2); }
     .multi-range::-webkit-slider-thumb { background: var(--multi); }
-
     .bubble { position: absolute; pointer-events: none; top: 50%; transform: translate(-50%, -50%); z-index: 4; color: #fff; font-weight: 900; font-size: 18px; text-align: center; }
 
     #athleteView { justify-content: flex-start; gap: 15px; padding: 5px 0; }
@@ -44,15 +43,16 @@
     tr.active-row { background-color: var(--highlight) !important; outline: 2px solid #ffd600; }
 
     /* 多人模式佈局 */
-    .multi-controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
-    .add-btn { background: var(--multi); color: white; border: none; padding: 5px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; }
+    .multi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
+    .btn-group { display: flex; gap: 6px; }
+    .add-btn { background: var(--multi); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+    .clear-btn { background: var(--gray); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
     
     #multiCardsArea { flex: 1; overflow-y: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; }
-    .multi-card { background: #fff; border-radius: 14px; padding: 10px 15px; border-left: 6px solid var(--multi); box-shadow: 0 2px 5px rgba(0,0,0,0.06); display: flex; align-items: center; margin-bottom: 8px; height: 65px; position: relative; transition: 0.2s; }
-    .multi-card.active-card { background: #eef9f1; border-color: #1a7f37; outline: 2px solid var(--multi); }
-    .multi-res { font-size: 32px; font-weight: 900; color: var(--multi); font-family: monospace; letter-spacing: -1px; margin-left: auto; margin-right: 35px; }
-    
-    .del-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; background: #ffefef; color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px; cursor: pointer; }
+    .multi-card { background: #fff; border-radius: 14px; padding: 10px 15px; border-left: 6px solid var(--multi); box-shadow: 0 2px 5px rgba(0,0,0,0.06); display: flex; align-items: center; margin-bottom: 8px; height: 65px; position: relative; }
+    .multi-card.selected { background: #f0fff4; border-color: #28a745; outline: 2px solid var(--multi); }
+    .multi-res { font-size: 30px; font-weight: 900; color: var(--multi); font-family: monospace; letter-spacing: -1px; margin-left: auto; padding-right: 30px; }
+    .del-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 24px; height: 24px; background: #ffebee; color: var(--danger); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; cursor: pointer; }
 
     .numpad-wrapper { background: #d1d4d9; padding: 8px 8px calc(env(safe-area-inset-bottom) + 5px) 8px; flex-shrink: 0; }
     .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-width: 400px; margin: 0 auto; }
@@ -88,9 +88,12 @@
             <table><tbody id="coachTable"></tbody></table>
         </div>
         <div id="multiView">
-            <div class="multi-controls">
-                <span style="font-size: 12px; color: #666; font-weight: bold;">多人清單</span>
-                <button class="add-btn" onclick="addAthlete()">+ 新增選手</button>
+            <div class="multi-header">
+                <span style="font-size: 13px; color: #666; font-weight: bold;">選手清單</span>
+                <div class="btn-group">
+                    <button class="clear-btn" onclick="clearAllMulti()">清空時間</button>
+                    <button class="add-btn" onclick="addAthlete()">+ 新增</button>
+                </div>
             </div>
             <div class="range-wrapper">
                 <div class="bubble" id="multiBubble">100%</div>
@@ -114,9 +117,12 @@
 <script>
     let currentFocus = 0, currentMode = 'athlete', multiTargetIdx = 0;
     let singleValues = ["00", "00", "00"];
-    let multiAthletes = [{vals:["00","00","00"]}]; // 預設一人
+    let multiAthletes = [
+        {vals:["00","00","00"]}, {vals:["00","00","00"]},
+        {vals:["00","00","00"]}, {vals:["00","00","00"]}
+    ];
     let isNewInput = true;
-    const STORAGE_KEY = 'coachTechData_v2026_dynamic';
+    const STORAGE_KEY = 'coachTechData_v2026_multi_clear';
 
     const mainRange = document.getElementById('mainRange'), athleteBubble = document.getElementById('athleteBubble'), mRange = document.getElementById('mRange'), multiBubble = document.getElementById('multiBubble');
 
@@ -136,7 +142,9 @@
         if (saved) {
             const data = JSON.parse(saved);
             singleValues = data.single || singleValues;
-            multiAthletes = data.multi || multiAthletes;
+            let loadedMulti = data.multi || multiAthletes;
+            while(loadedMulti.length < 4) loadedMulti.push({vals:["00","00","00"]});
+            multiAthletes = loadedMulti;
             mainRange.value = data.mainRange || 100;
             mRange.value = data.mRange || 100;
         }
@@ -155,16 +163,14 @@
         document.getElementById('athleteView').style.display = m === 'athlete' ? 'flex' : 'none';
         document.getElementById('coachView').style.display = m === 'coach' ? 'block' : 'none';
         document.getElementById('multiView').style.display = m === 'multi' ? 'flex' : 'none';
-        
         if (m === 'multi') {
             if (multiTargetIdx >= multiAthletes.length) multiTargetIdx = 0;
             setMultiTarget(multiTargetIdx);
-        } else {
-            focusBox(0);
-        }
+        } else focusBox(0);
         calculate();
     }
 
+    // --- 多人模式功能 ---
     function addAthlete() {
         multiAthletes.push({vals:["00","00","00"]});
         setMultiTarget(multiAthletes.length - 1);
@@ -172,12 +178,20 @@
     }
 
     function deleteAthlete(e, idx) {
-        e.stopPropagation(); // 防止觸發切換選取
-        if (multiAthletes.length <= 1) return alert("至少需保留一位選手");
+        e.stopPropagation();
+        if (idx < 4) return; 
         multiAthletes.splice(idx, 1);
         if (multiTargetIdx >= multiAthletes.length) multiTargetIdx = multiAthletes.length - 1;
         setMultiTarget(multiTargetIdx);
         calculate();
+    }
+
+    function clearAllMulti() {
+        if (confirm("確定要清空所有選手的基準時間嗎？\n(名單將會保留，僅重置時間)")) {
+            multiAthletes.forEach(ath => ath.vals = ["00", "00", "00"]);
+            updateInputDisplay();
+            calculate();
+        }
     }
 
     function setMultiTarget(idx) {
@@ -194,15 +208,16 @@
             const baseMs = toTotalMs(ath.vals);
             const targetMs = baseMs * (2 - mPct / 100);
             const card = document.createElement('div');
-            card.className = `multi-card ${i === multiTargetIdx ? 'active-card' : ''}`;
+            card.className = `multi-card ${i === multiTargetIdx ? 'selected' : ''}`;
             card.onclick = () => setMultiTarget(i);
+            const deleteBtnHtml = i >= 4 ? `<div class="del-btn" onclick="deleteAthlete(event, ${i})">×</div>` : '';
             card.innerHTML = `
                 <div style="flex:1">
-                    <span style="font-weight:bold;font-size:14px;color:#555">選手 ${i+1}</span><br>
-                    <span style="font-size:11px;color:#aaa">基準: ${formatMs(baseMs)}</span>
+                    <span style="font-weight:bold;font-size:14px;color:#333">選手 ${i+1} ${i < 4 ? '<small style="color:#999">(固定)</small>' : ''}</span><br>
+                    <span style="font-size:11px;color:#999">基準: ${formatMs(baseMs)}</span>
                 </div>
                 <div class="multi-res">${formatMs(targetMs)}</div>
-                <div class="del-btn" onclick="deleteAthlete(event, ${i})">×</div>
+                ${deleteBtnHtml}
             `;
             list.appendChild(card);
         });
@@ -256,7 +271,7 @@
         multiBubble.innerText = mPct + '%';
         multiBubble.style.left = `calc(42px + ${mPos} * (100% - 84px))`;
 
-        renderMultiCards();
+        if (currentMode === 'multi') renderMultiCards();
         saveData();
     }
 
