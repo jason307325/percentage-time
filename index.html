@@ -36,13 +36,18 @@
     #athleteView { justify-content: flex-start; gap: 15px; padding: 5px 0; }
     .result { background: var(--primary); padding: 18px 10px; border-radius: 20px; text-align: center; font-size: 50px; font-weight: 900; color: #fff; box-shadow: 0 4px 12px rgba(0,74,173,0.2); }
 
-    #coachView { overflow-y: auto; background: #fff; border-radius: 14px; -webkit-overflow-scrolling: touch; }
+    /* 教練版滾動區域 */
+    #coachView { overflow-y: auto; background: #fff; border-radius: 14px; -webkit-overflow-scrolling: touch; border: 1px solid #eee; }
     table { width: 100%; border-collapse: collapse; }
-    td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+    td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f0f0f0; transition: background 0.2s; }
     .td-res { font-size: 28px; font-weight: 900; color: var(--primary); font-family: monospace; }
-    tr.active-row { background-color: var(--highlight) !important; outline: 2px solid #ffd600; }
+    
+    /* 高亮顯示當前行 */
+    tr.active-row { background-color: var(--highlight) !important; }
+    tr.active-row td { color: #000; border-top: 2px solid #ffd600; border-bottom: 2px solid #ffd600; }
+    tr.active-row .td-res { color: var(--primary); font-size: 32px; }
 
-    /* 多人模式佈局 */
+    /* 多人模式樣式 */
     .multi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-shrink: 0; }
     .btn-group { display: flex; gap: 6px; }
     .add-btn { background: var(--multi); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
@@ -117,12 +122,9 @@
 <script>
     let currentFocus = 0, currentMode = 'athlete', multiTargetIdx = 0;
     let singleValues = ["00", "00", "00"];
-    let multiAthletes = [
-        {vals:["00","00","00"]}, {vals:["00","00","00"]},
-        {vals:["00","00","00"]}, {vals:["00","00","00"]}
-    ];
+    let multiAthletes = [{vals:["00","00","00"]}, {vals:["00","00","00"]}, {vals:["00","00","00"]}, {vals:["00","00","00"]}];
     let isNewInput = true;
-    const STORAGE_KEY = 'coachTechData_v2026_multi_clear';
+    const STORAGE_KEY = 'coachTechData_v2026_sync_fix';
 
     const mainRange = document.getElementById('mainRange'), athleteBubble = document.getElementById('athleteBubble'), mRange = document.getElementById('mRange'), multiBubble = document.getElementById('multiBubble');
 
@@ -131,8 +133,16 @@
         document.getElementById('athleteBtn').onclick = () => switchMode('athlete');
         document.getElementById('coachBtn').onclick = () => switchMode('coach');
         document.getElementById('multiBtn').onclick = () => switchMode('multi');
-        mainRange.oninput = () => { calculate(); if (currentMode === 'coach') scrollToActiveRow(); };
+        
+        mainRange.oninput = () => {
+            calculate();
+            syncCoachView();
+        };
+        
         mRange.oninput = calculate;
+        
+        // 初始化教練版表格（只建立一次框架）
+        renderCoachTableBase();
         switchMode(currentMode);
         calculate();
     }
@@ -142,9 +152,7 @@
         if (saved) {
             const data = JSON.parse(saved);
             singleValues = data.single || singleValues;
-            let loadedMulti = data.multi || multiAthletes;
-            while(loadedMulti.length < 4) loadedMulti.push({vals:["00","00","00"]});
-            multiAthletes = loadedMulti;
+            multiAthletes = data.multi || multiAthletes;
             mainRange.value = data.mainRange || 100;
             mRange.value = data.mRange || 100;
         }
@@ -163,14 +171,50 @@
         document.getElementById('athleteView').style.display = m === 'athlete' ? 'flex' : 'none';
         document.getElementById('coachView').style.display = m === 'coach' ? 'block' : 'none';
         document.getElementById('multiView').style.display = m === 'multi' ? 'flex' : 'none';
-        if (m === 'multi') {
-            if (multiTargetIdx >= multiAthletes.length) multiTargetIdx = 0;
+        
+        if (m === 'coach') {
+            renderCoachTableBase(); // 切換時確保數據最新
+            setTimeout(scrollToActiveRow, 50);
+        } else if (m === 'multi') {
             setMultiTarget(multiTargetIdx);
-        } else focusBox(0);
+        } else {
+            focusBox(0);
+        }
         calculate();
     }
 
-    // --- 多人模式功能 ---
+    // --- 教練版連動邏輯 ---
+    function renderCoachTableBase() {
+        const baseMs = toTotalMs(singleValues);
+        let html = "";
+        for (let i = 110; i >= 50; i--) {
+            const rowMs = baseMs * (2 - i / 100);
+            html += `<tr id="row-${i}"><td style="font-weight:bold; width:60px">${i}%</td><td class="td-res">${formatMs(rowMs)}</td></tr>`;
+        }
+        document.getElementById('coachTable').innerHTML = html;
+        syncCoachView();
+    }
+
+    function syncCoachView() {
+        const val = mainRange.value;
+        // 移除舊的高亮
+        document.querySelectorAll('#coachTable tr').forEach(r => r.classList.remove('active-row'));
+        // 加入新的高亮
+        const activeRow = document.getElementById(`row-${val}`);
+        if (activeRow) {
+            activeRow.classList.add('active-row');
+            if (currentMode === 'coach') scrollToActiveRow();
+        }
+    }
+
+    function scrollToActiveRow() {
+        const activeRow = document.querySelector('.active-row');
+        if (activeRow) {
+            activeRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    // --- 多人模式與共用功能 ---
     function addAthlete() {
         multiAthletes.push({vals:["00","00","00"]});
         setMultiTarget(multiAthletes.length - 1);
@@ -187,7 +231,7 @@
     }
 
     function clearAllMulti() {
-        if (confirm("確定要清空所有選手的基準時間嗎？\n(名單將會保留，僅重置時間)")) {
+        if (confirm("清空所有選手基準時間？")) {
             multiAthletes.forEach(ath => ath.vals = ["00", "00", "00"]);
             updateInputDisplay();
             calculate();
@@ -202,6 +246,7 @@
 
     function renderMultiCards() {
         const list = document.getElementById('multiCardsList');
+        if(!list) return;
         list.innerHTML = "";
         const mPct = parseInt(mRange.value);
         multiAthletes.forEach((ath, i) => {
@@ -211,14 +256,7 @@
             card.className = `multi-card ${i === multiTargetIdx ? 'selected' : ''}`;
             card.onclick = () => setMultiTarget(i);
             const deleteBtnHtml = i >= 4 ? `<div class="del-btn" onclick="deleteAthlete(event, ${i})">×</div>` : '';
-            card.innerHTML = `
-                <div style="flex:1">
-                    <span style="font-weight:bold;font-size:14px;color:#333">選手 ${i+1} ${i < 4 ? '<small style="color:#999">(固定)</small>' : ''}</span><br>
-                    <span style="font-size:11px;color:#999">基準: ${formatMs(baseMs)}</span>
-                </div>
-                <div class="multi-res">${formatMs(targetMs)}</div>
-                ${deleteBtnHtml}
-            `;
+            card.innerHTML = `<div style="flex:1"><span style="font-weight:bold;font-size:14px">選手 ${i+1} ${i < 4 ? '<small style="color:#999">(固定)</small>' : ''}</span><br><span style="font-size:11px;color:#999">基準: ${formatMs(baseMs)}</span></div><div class="multi-res">${formatMs(targetMs)}</div>${deleteBtnHtml}`;
             list.appendChild(card);
         });
     }
@@ -246,6 +284,7 @@
             if (isNewInput) { activeData[currentFocus] = "0" + key; isNewInput = false; }
             else { activeData[currentFocus] = (activeData[currentFocus].slice(-1) + key).slice(-2); if (currentFocus < 2) { currentFocus++; isNewInput = true; } }
         }
+        if (currentMode !== 'multi') renderCoachTableBase();
         updateInputDisplay(); calculate();
     }
 
@@ -256,15 +295,6 @@
         athleteBubble.innerText = aPct + '%';
         athleteBubble.style.left = `calc(42px + ${aPos} * (100% - 84px))`;
         document.getElementById('resText').innerText = formatMs(baseMs * (2 - aPct / 100));
-
-        if (currentMode === 'coach') {
-            let html = "";
-            for (let i = 110; i >= 50; i--) {
-                const rowMs = baseMs * (2 - i / 100);
-                html += `<tr class="${i == aPct ? 'active-row' : ''}"><td style="font-weight:bold">${i}%</td><td class="td-res">${formatMs(rowMs)}</td></tr>`;
-            }
-            document.getElementById('coachTable').innerHTML = html;
-        }
 
         const mPct = parseInt(mRange.value);
         const mPos = (mPct - 50) / 60;
@@ -287,11 +317,6 @@
         const s = Math.floor(ms / 1000);
         ms %= 1000;
         return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}.${Math.floor(ms/10).toString().padStart(2,'0')}`;
-    }
-
-    function scrollToActiveRow() {
-        const activeRow = document.querySelector('.active-row');
-        if (activeRow) activeRow.scrollIntoView({ behavior: 'auto', block: 'center' });
     }
 
     init();
