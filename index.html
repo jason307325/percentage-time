@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>COACH TECH 2026 - Final Optimized</title>
+<title>教練科技 COACH TECH 2026</title>
 <style>
 :root {
   --bg-dark:#0d1117;
@@ -13,32 +13,31 @@
   --neon-blue:#00a2ff;
   --neon-green:#4cd964;
   --neon-red:#ff3b30;
-  --neon-yellow:#ffcc00;
 }
 *{box-sizing:border-box;margin:0;padding:0;touch-action: manipulation;}
 html,body{width:100%;height:100%;font-family:-apple-system,system-ui,sans-serif;background:var(--bg-dark);color:var(--text-light);overflow:hidden;}
 
 .container{flex:1;display:flex;flex-direction:column;width:100%;height:100%;padding:10px;}
-h1{text-align:center;font-size:12px;color:#444;margin-bottom:8px;font-weight:900;text-transform:uppercase;}
+h1{text-align:center;font-size:13px;color:#444;margin-bottom:8px;font-weight:900;letter-spacing:1px;}
 
-/* Mode Switch Tabs */
+/* 模式切換標籤 */
 .mode-switch{display:flex;gap:6px;margin-bottom:12px;flex-shrink:0;}
-.mode-switch button{flex:1;padding:12px 0;border:none;border-radius:12px;background:var(--panel-dark);color:#666;font-weight:800;cursor:pointer;font-size:14px;transition:all 0.15s ease;}
+.mode-switch button{flex:1;padding:12px 0;border:none;border-radius:12px;background:var(--panel-dark);color:#666;font-weight:800;cursor:pointer;font-size:15px;}
 .mode-switch button.active{color:#fff;background:var(--neon-blue);box-shadow:0 0 15px rgba(0,162,255,0.4);}
 .mode-switch button.multi-btn.active{background:var(--neon-green);box-shadow:0 0 15px rgba(76,217,100,0.4);}
 
-/* Time Boxes */
+/* 時間顯示格 */
 .time-display{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px;flex-shrink:0;}
 .unit-box{flex:1;text-align:center;border:2px solid #333;border-radius:14px;padding:8px 0;font-size:26px;font-weight:900;color:#fff;background: #000;}
 .unit-box.active{border-color: var(--neon-blue); background: var(--panel-light); box-shadow: inset 0 0 8px rgba(0,162,255,0.3);}
 .unit-box span{font-size:10px;display:block;color:#888;margin-top:2px;}
 .sep{font-size:24px;font-weight:bold;color:#333;}
 
-/* Main Viewport */
+/* 視窗區域 */
 .view-area{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 #athleteView,#coachView,#multiView{display:none;flex-direction:column;flex:1;overflow:hidden;}
 
-/* Slider Engine - Zero Latency */
+/* 滑軌引擎 - 零延遲對齊 */
 .range-wrapper {
     position: relative;
     width: 100%;
@@ -50,7 +49,7 @@ h1{text-align:center;font-size:12px;color:#444;margin-bottom:8px;font-weight:900
     align-items: center;
     margin-bottom: 8px;
     flex-shrink: 0;
-    padding: 0 10px;
+    padding: 0 12px;
 }
 input[type=range]{
     width: 100%;
@@ -62,14 +61,13 @@ input[type=range]{
 }
 input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 84px; /* Matches bubble width */
+    width: 84px; 
     height: 38px;
     background: transparent;
 }
 .bubble {
     position: absolute;
     top: 50%;
-    left: 50%;
     transform: translate(-50%, -50%);
     width: 84px;
     height: 38px;
@@ -80,14 +78,13 @@ input[type=range]::-webkit-slider-thumb {
     border-radius: 19px;
     pointer-events: none;
     z-index: 50;
-    /* No transition for zero latency following finger */
 }
 #athleteBubble { background: var(--neon-blue); color: #fff; box-shadow: 0 0 15px rgba(0,162,255,0.5); }
 #multiBubble { background: var(--neon-green); color: #fff; box-shadow: 0 0 15px rgba(76,217,100,0.5); }
 
-#athleteView .result{font-size:52px;font-weight:900;text-align:center;color: var(--neon-blue);margin:20px 0; text-shadow: 0 0 20px rgba(0,162,255,0.3);}
+#athleteView .result{font-size:52px;font-weight:900;text-align:center;color: var(--neon-blue);margin:15px 0; text-shadow: 0 0 20px rgba(0,162,255,0.3);}
 
-/* Coach Table - Dynamic Auto-scroll */
+/* 教練版表格 */
 #coachView {
     flex:1;
     overflow-y:auto;
@@ -96,22 +93,22 @@ input[type=range]::-webkit-slider-thumb {
     border: 1px solid #333;
 }
 #coachView table{width:100%;border-collapse:collapse;}
-#coachView td{padding:14px;text-align:center;font-family:monospace;color:#555;border-bottom:1px solid #222; font-size: 16px;}
-#coachView tr.highlight td{background: rgba(0,162,255,0.15); color:var(--neon-blue); font-weight:900; border-bottom: 1px solid var(--neon-blue); color: #fff;}
+#coachView td{padding:14px;text-align:center;font-family:monospace;color:#555;border-bottom:1px solid #222; font-size: 17px;}
+#coachView tr.highlight td{background: rgba(0,162,255,0.2); color: #fff; font-weight:900; border-bottom: 1px solid var(--neon-blue);}
 
-/* Multi-Mode Components */
+/* 多人模式元件 */
 #multiCardsArea { flex:1; overflow-y:auto; margin-top: 5px;}
 .multi-header{display:flex;justify-content:space-between;align-items:center;padding:0 4px 8px 4px;}
-.add-btn,.clear-btn{padding:8px 14px;border:none;border-radius:10px;font-size:12px;font-weight:800;text-transform: uppercase;}
+.add-btn,.clear-btn{padding:8px 14px;border:none;border-radius:10px;font-size:12px;font-weight:800;}
 .add-btn{background: var(--neon-green); color:#fff;}
 .clear-btn{background:#333;color:#888;}
 
-.multi-card{background: #0a0d12; border-left:6px solid var(--neon-green); border-radius:12px; padding:15px; margin-bottom:10px; display:flex; align-items:center; transition: 0.1s;}
+.multi-card{background: #0a0d12; border-left:6px solid var(--neon-green); border-radius:12px; padding:15px; margin-bottom:10px; display:flex; align-items:center;}
 .multi-card.selected{background: #161b22; outline:2px solid var(--neon-green); box-shadow: 0 0 15px rgba(76,217,100,0.2);}
 .multi-res{font-family:monospace;font-size:26px;color: var(--neon-green);font-weight:900; margin-left: auto;}
-.del-athlete-btn { color: var(--neon-red); font-size: 20px; padding-left: 15px; font-weight: bold; }
+.del-athlete-btn { color: var(--neon-red); font-size: 22px; padding-left: 15px; font-weight: bold; cursor: pointer;}
 
-/* Keyboard - Compact Grid */
+/* 數字鍵盤 - 確保顯示邏輯正確 */
 #numKeyboard {
     background: #000;
     padding: 8px;
@@ -131,26 +128,26 @@ input[type=range]::-webkit-slider-thumb {
     border-radius: 10px;
 }
 #numKeyboard button:active { background: #333; transform: scale(0.95); }
-.btn-cmd { color: var(--neon-red) !important; font-size: 14px !important; letter-spacing: 1px;}
+.btn-cmd { color: var(--neon-red) !important; font-size: 14px !important; }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>COACH TECH 2026</h1>
+    <h1>教練科技 COACH TECH 2026</h1>
     
     <div class="mode-switch">
-        <button id="athleteBtn" class="active" onclick="switchMode('athlete')">ATHLETE</button>
-        <button id="coachBtn" onclick="switchMode('coach')">COACH</button>
-        <button id="multiBtn" class="multi-btn" onclick="switchMode('multi')">MULTI</button>
+        <button id="athleteBtn" class="active" onclick="switchMode('athlete')">個人版</button>
+        <button id="coachBtn" onclick="switchMode('coach')">教練版</button>
+        <button id="multiBtn" class="multi-btn" onclick="switchMode('multi')">多人模式</button>
     </div>
 
     <div class="time-display">
-        <div id="box-0" class="unit-box active" onclick="focusBox(0)">00<span>MIN</span></div>
+        <div id="box-0" class="unit-box active" onclick="focusBox(0)">00<span>分鐘</span></div>
         <div class="sep">:</div>
-        <div id="box-1" class="unit-box" onclick="focusBox(1)">00<span>SEC</span></div>
+        <div id="box-1" class="unit-box" onclick="focusBox(1)">00<span>秒數</span></div>
         <div class="sep">.</div>
-        <div id="box-2" class="unit-box" onclick="focusBox(2)">00<span>MS</span></div>
+        <div id="box-2" class="unit-box" onclick="focusBox(2)">00<span>毫秒</span></div>
     </div>
 
     <div class="view-area">
@@ -168,10 +165,10 @@ input[type=range]::-webkit-slider-thumb {
 
         <div id="multiView">
             <div class="multi-header">
-                <span style="color:#666;font-size:12px;font-weight:900;">ENTRY LIST</span>
+                <span style="color:#555;font-size:12px;font-weight:900;">選手名單</span>
                 <div class="btn-group">
-                    <button class="clear-btn" onclick="clearAllMulti()">CLEAR ALL</button>
-                    <button class="add-btn" onclick="addAthlete()">+ ADD P</button>
+                    <button class="clear-btn" onclick="clearAllMulti()">清空數據</button>
+                    <button class="add-btn" onclick="addAthlete()">+ 新增選手</button>
                 </div>
             </div>
             <div class="range-wrapper">
@@ -187,15 +184,12 @@ input[type=range]::-webkit-slider-thumb {
     <button onclick="press('7')">7</button><button onclick="press('8')">8</button><button onclick="press('9')">9</button>
     <button onclick="press('4')">4</button><button onclick="press('5')">5</button><button onclick="press('6')">6</button>
     <button onclick="press('1')">1</button><button onclick="press('2')">2</button><button onclick="press('3')">3</button>
-    <button class="btn-cmd" onclick="press('C')">RESET</button>
+    <button class="btn-cmd" onclick="press('C')">歸零</button>
     <button onclick="press('0')">0</button>
-    <button class="btn-cmd" onclick="press('X')">DEL</button>
+    <button class="btn-cmd" onclick="press('X')">刪除</button>
 </div>
 
 <script>
-/**
- * Global State
- */
 let currentFocus = 0;
 let currentMode = 'athlete';
 let multiTargetIdx = 0;
@@ -208,19 +202,17 @@ const athleteBubble = document.getElementById('athleteBubble');
 const mRange = document.getElementById('mRange');
 const multiBubble = document.getElementById('multiBubble');
 
-/**
- * Event Listeners
- */
+// 初始化事件
 mainRange.addEventListener('input', () => { calculate(); if(currentMode === 'coach') syncCoachScroll(); });
 mRange.addEventListener('input', calculate);
-window.addEventListener('resize', calculate); // Recalculate bubble positions on orientation change
+window.addEventListener('resize', calculate);
 
-// Auto-init
+// 預設模式
 switchMode('athlete');
 renderCoachTable();
 
 /**
- * UI Switching Logic
+ * 模式切換邏輯
  */
 function switchMode(m) {
     currentMode = m;
@@ -231,8 +223,13 @@ function switchMode(m) {
     document.getElementById('coachView').style.display = (m === 'coach') ? 'block' : 'none';
     document.getElementById('multiView').style.display = (m === 'multi') ? 'flex' : 'none';
     
-    // Auto-hide keyboard for Coach mode
-    document.getElementById('numKeyboard').style.display = (m === 'coach') ? 'none' : 'grid';
+    // 重大修正：教練版隱藏鍵盤，其他顯示
+    const keyboard = document.getElementById('numKeyboard');
+    if (m === 'coach') {
+        keyboard.style.display = 'none';
+    } else {
+        keyboard.style.display = 'grid';
+    }
     
     updateInputDisplay();
     calculate();
@@ -240,7 +237,7 @@ function switchMode(m) {
 }
 
 /**
- * Input Logic
+ * 輸入處理
  */
 function focusBox(idx) { currentFocus = idx; isNewInput = true; updateInputDisplay(); }
 
@@ -249,7 +246,7 @@ function updateInputDisplay() {
     for(let i=0; i<3; i++) {
         const box = document.getElementById('box-' + i);
         box.classList.toggle('active', i === currentFocus);
-        box.innerHTML = activeData[i] + `<span>${['MIN', 'SEC', 'MS'][i]}</span>`;
+        box.innerHTML = activeData[i] + `<span>${['分鐘', '秒數', '毫秒'][i]}</span>`;
     }
 }
 
@@ -270,24 +267,22 @@ function press(key) {
 }
 
 /**
- * Core Calculation & Positioning Engine
+ * 計算與泡泡定位引擎
  */
 function calculate() {
     const baseMs = toTotalMs(singleValues);
     
-    // 1. Athlete Bubble Engine
+    // 個人版泡泡定位
     const aVal = parseInt(mainRange.value);
     const aPct = (aVal - 50) / 60;
     const aRect = mainRange.getBoundingClientRect();
-    const aThumbOffset = 42; // Half of bubble width
     
     athleteBubble.innerText = aVal + '%';
-    // Calculate pixel position across the slider track
     const aTargetPos = (aPct * (aRect.width - 20)) + 10;
     athleteBubble.style.left = `${aTargetPos}px`;
     document.getElementById('resText').innerText = formatMs(baseMs * (2 - aVal / 100));
 
-    // 2. Multi Bubble Engine
+    // 多人版泡泡定位
     const mVal = parseInt(mRange.value);
     const mPct = (mVal - 50) / 60;
     const mRect = mRange.getBoundingClientRect();
@@ -309,7 +304,7 @@ function formatMs(ms) {
 }
 
 /**
- * Coach View Logic
+ * 教練版功能
  */
 function renderCoachTable() {
     const baseMs = toTotalMs(singleValues);
@@ -331,7 +326,6 @@ function highlightCoachRow(pct) {
 function syncCoachScroll() {
     const row = document.getElementById(`row-${mainRange.value}`);
     if(row) {
-        // Use requestAnimationFrame for smooth non-blocking sync
         requestAnimationFrame(() => {
             row.scrollIntoView({ block: 'center', behavior: 'instant' });
         });
@@ -339,7 +333,7 @@ function syncCoachScroll() {
 }
 
 /**
- * Multi View Management
+ * 多人模式管理
  */
 function addAthlete() {
     multiAthletes.push({vals: ["00", "00", "00"]});
@@ -348,14 +342,14 @@ function addAthlete() {
 
 function deleteAthlete(e, idx) {
     e.stopPropagation();
-    if(idx < 4) return; // Protected fixed slots
+    if(idx < 4) return;
     multiAthletes.splice(idx, 1);
     if(multiTargetIdx >= multiAthletes.length) multiTargetIdx = multiAthletes.length - 1;
     setMultiTarget(multiTargetIdx);
 }
 
 function clearAllMulti() {
-    if(confirm("RESET ALL TARGET TIMES?")) {
+    if(confirm("確定要清空所有選手的基準時間嗎？")) {
         multiAthletes.forEach(a => a.vals = ["00", "00", "00"]);
         updateInputDisplay();
         calculate();
@@ -384,7 +378,7 @@ function renderMultiCards() {
         let deleteBtn = i >= 4 ? `<div class="del-athlete-btn" onclick="deleteAthlete(event, ${i})">×</div>` : '';
         
         card.innerHTML = `
-            <div style="font-size:14px; font-weight:900; color:#444;">P${i+1}</div>
+            <div style="font-size:14px; font-weight:900; color:#555;">選手 ${i+1}</div>
             <div class="multi-res">${formatMs(targetMs)}</div>
             ${deleteBtn}
         `;
