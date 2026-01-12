@@ -19,7 +19,7 @@ html,body{width:100%;height:100dvh;font-family:system-ui,sans-serif;background:v
 .app-wrapper { display: flex; flex-direction: column; height: 100dvh; }
 .container { flex: 1; display: flex; flex-direction: column; padding: 10px; overflow: hidden; }
 
-/* 頂部縮小 */
+/* 頂部標題 */
 .header-area { text-align:center; margin-bottom:5px; flex-shrink:0; }
 .current-pct-display { font-size: 24px; font-weight: 900; color: var(--neon-blue); }
 
@@ -27,59 +27,71 @@ html,body{width:100%;height:100dvh;font-family:system-ui,sans-serif;background:v
 .mode-switch button{flex:1;padding:12px 0;border:none;border-radius:10px;background:#1a1a1a;color:#666;font-weight:800;font-size:14px;}
 .mode-switch button.active{color:#fff;background:var(--neon-blue);}
 
-/* 時間格縮小 */
+/* 時間顯示格 */
 .time-display{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;flex-shrink:0;}
 .unit-box{flex:1;text-align:center;border:1px solid #333;border-radius:10px;padding:6px 0;font-size:26px;font-weight:900;background:#000;}
 .unit-box.active{border-color: var(--neon-blue); background: #0a111a;}
-.unit-box span{font-size:10px;display:block;color:#555;}
+.unit-box span{font-size:10px;display:block;color:#555;font-weight:normal;}
 
 .view-area{flex:1; position:relative; overflow:hidden;}
 #athleteView,#coachView,#multiView{position:absolute; inset:0; display:none; flex-direction:column;}
 
-/* 極細拉桿與圓球泡泡 */
+/* 拉桿容器與 GPU 加速泡泡 */
 .range-wrapper {
     position: relative;
-    width: 100%; height: 36px; /* 高度縮小 */
+    width: 100%; height: 50px; 
     display: flex; align-items: center;
     margin-bottom: 10px; flex-shrink:0;
+    z-index: 1; /* 較低層級 */
 }
-/* 拉桿本體變細 */
 input[type=range]{
     width: 100%; -webkit-appearance: none; background: #333; 
-    height: 4px; border-radius: 2px; outline: none; z-index: 10;
+    height: 3px; border-radius: 2px; outline: none; z-index: 2;
+    position: relative;
 }
 input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none; width: 50px; height: 32px; /* 隱形的觸控區域 */
+    -webkit-appearance: none; width: 60px; height: 40px; 
 }
 
-/* 圓球泡泡樣式 */
+/* 圓形泡泡修正：使用 transform 解決卡頓與遮擋 */
 .bubble {
-    position: absolute; top: 50%;
-    transform: translate(-50%, -50%);
-    width: 50px; height: 50px; /* 圓形 */
+    position: absolute; 
+    left: 0; top: 50%;
+    width: 50px; height: 50px; 
+    margin-top: -25px; /* 垂直居中修正 */
     line-height: 50px; text-align: center;
     font-weight: 900; font-size: 14px;
-    border-radius: 50%; pointer-events: none; z-index: 5;
-    color: #fff !important; border: 2px solid #000;
+    border-radius: 50%; pointer-events: none; 
+    z-index: 100; /* 極高層級，確保不被線條遮擋 */
+    color: #fff !important;
+    will-change: transform; /* 預告瀏覽器使用 GPU */
 }
-#athleteBubble { background: var(--neon-blue); box-shadow: 0 0 10px rgba(0,162,255,0.5); }
-#multiBubble { background: var(--neon-green); box-shadow: 0 0 10px rgba(76,217,100,0.5); color: #000 !important; }
+#athleteBubble { background: var(--neon-blue); box-shadow: 0 0 15px rgba(0,162,255,0.6); }
+#multiBubble { background: var(--neon-green); box-shadow: 0 0 15px rgba(76,217,100,0.6); color: #000 !important; }
 
-/* 個人版大字體稍微下修以平衡空間 */
+/* 個人版 */
 .result-display{flex:1; display:flex; justify-content:center; align-items:center;}
 .result-time{font-size:60px; font-weight:900; color: var(--neon-blue); font-family: monospace;}
 
-/* 教練版維持原樣但空間更大 */
+/* 教練版：全置中優化 */
 #coachView { overflow-y:auto; background: #080808; border-radius: 12px; }
-#coachView td{padding:15px 10px; font-size: 18px;}
+#coachView table { width: 100%; border-collapse: collapse; margin: 0 auto; }
+#coachView td { 
+    padding: 15px 10px; 
+    font-size: 20px; 
+    text-align: center; /* 強制水平置中 */
+    vertical-align: middle; 
+    font-family: monospace;
+}
+#coachView tr.highlight td { background: rgba(0,162,255,0.2); color: #fff; font-weight: 900; }
 
-/* 多人版名單優化：更緊湊 */
+/* 多人版 */
 .multi-card{background: #0d0d0d; border-left:6px solid var(--neon-green); border-radius:10px; padding:12px 15px; margin-bottom:8px; display:flex; align-items:center;}
 .multi-card.selected{background: #141814; outline:1px solid var(--neon-green);}
 .multi-res{font-family:monospace; font-size:26px; color: var(--neon-green); font-weight:900; margin-left: auto;}
 .p-tag { font-size: 14px; color: #555; font-weight: bold; }
 
-/* 鍵盤縮小優化 */
+/* 鍵盤 */
 #numKeyboard {
     flex-shrink: 0; display: grid; grid-template-columns: repeat(3, 1fr);
     gap: 5px; padding: 8px; background: #000; border-top: 1px solid #222;
@@ -107,9 +119,9 @@ input[type=range]::-webkit-slider-thumb {
         </div>
 
         <div class="time-display">
-            <div id="box-0" class="unit-box active" onclick="focusBox(0)">00<span>MIN</span></div>
-            <div id="box-1" class="unit-box" onclick="focusBox(1)">00<span>SEC</span></div>
-            <div id="box-2" class="unit-box" onclick="focusBox(2)">00<span>MS</span></div>
+            <div id="box-0" class="unit-box active" onclick="focusBox(0)">00<span>分鐘</span></div>
+            <div id="box-1" class="unit-box" onclick="focusBox(1)">00<span>秒數</span></div>
+            <div id="box-2" class="unit-box" onclick="focusBox(2)">00<span>毫秒</span></div>
         </div>
 
         <div class="view-area">
@@ -129,8 +141,8 @@ input[type=range]::-webkit-slider-thumb {
 
             <div id="multiView">
                 <div class="multi-header" style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <button style="color:#555; background:none; border:none; font-size:12px;" onclick="clearAllMulti()">RESET</button>
-                    <button style="background:var(--neon-green); border:none; padding:5px 10px; border-radius:6px; font-weight:900; font-size:12px; color:#000" onclick="addAthlete()">+ ADD</button>
+                    <button style="color:#555; background:none; border:none; font-size:12px;" onclick="clearAllMulti()">清空數據</button>
+                    <button style="background:var(--neon-green); border:none; padding:5px 10px; border-radius:6px; font-weight:900; font-size:12px; color:#000" onclick="addAthlete()">+ 新增選手</button>
                 </div>
                 <div class="range-wrapper">
                     <div class="bubble" id="multiBubble">100%</div>
@@ -209,23 +221,32 @@ function press(k) {
     updateUI();
 }
 
+/** 核心 UI 更新邏輯 (使用 GPU 加速) */
 function updateUI() {
     requestAnimationFrame(() => {
         const baseMs = toMs(state.base);
+        
+        // 個人版
         const aVal = parseInt(mainRange.value);
         const aRect = mainRange.getBoundingClientRect();
-        
         document.getElementById('topPctDisplay').innerText = aVal + '%';
         const athleteBubble = document.getElementById('athleteBubble');
         athleteBubble.innerText = aVal + '%';
-        athleteBubble.style.left = `${((aVal - 50) / 60 * (aRect.width - 40)) + 20}px`;
+        
+        // 使用 translateX 替換 left，解決卡頓問題
+        const aMove = (aVal - 50) / 60 * (aRect.width - 50);
+        athleteBubble.style.transform = `translateX(${aMove}px)`;
+        
         document.getElementById('resText').innerText = fmt(baseMs * (2 - aVal / 100));
 
+        // 多人版
         const mVal = parseInt(mRange.value);
         const mRect = mRange.getBoundingClientRect();
         const multiBubble = document.getElementById('multiBubble');
         multiBubble.innerText = mVal + '%';
-        multiBubble.style.left = `${((mVal - 50) / 60 * (mRect.width - 40)) + 20}px`;
+        
+        const mMove = (mVal - 50) / 60 * (mRect.width - 50);
+        multiBubble.style.transform = `translateX(${mMove}px)`;
 
         if(state.mode === 'multi') renderCards();
         highRow(aVal);
@@ -267,7 +288,7 @@ function renderCards() {
         const card = document.createElement('div');
         card.className = `multi-card ${i === state.multiIdx ? 'selected' : ''}`;
         card.onclick = () => { state.multiIdx = i; updateDisplay(); updateUI(); };
-        card.innerHTML = `<div class="p-tag">P${i+1}</div><div class="multi-res">${fmt(ms)}</div>`;
+        card.innerHTML = `<div class="p-tag">選手 第${i+1}名</div><div class="multi-res">${fmt(ms)}</div>`;
         l.appendChild(card);
     });
 }
