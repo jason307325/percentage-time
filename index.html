@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>教練科技 COACH TECH 2026 - Ultimate</title>
+<title>教練科技 COACH TECH 2026</title>
 <style>
 :root {
   --bg-dark:#05070a;
@@ -14,81 +14,82 @@
   --neon-red:#ff3b30;
 }
 *{box-sizing:border-box;margin:0;padding:0;touch-action: manipulation;}
-html,body{width:100%;height:100dvh;font-family:system-ui,-apple-system,sans-serif;background:var(--bg-dark);color:var(--text-light);overflow:hidden;}
+html,body{width:100%;height:100dvh;font-family:system-ui,sans-serif;background:var(--bg-dark);color:var(--text-light);overflow:hidden;}
 
 .app-wrapper { display: flex; flex-direction: column; height: 100dvh; }
-.container { flex: 1; display: flex; flex-direction: column; padding: 12px; overflow: hidden; }
+.container { flex: 1; display: flex; flex-direction: column; padding: 10px; overflow: hidden; }
 
-/* 頂部資訊區 */
-.header-area { text-align:center; margin-bottom:8px; flex-shrink:0; }
-.current-pct-display { font-size: 32px; font-weight: 900; color: var(--neon-blue); text-shadow: 0 0 15px rgba(0,162,255,0.6); }
+/* 頂部縮小 */
+.header-area { text-align:center; margin-bottom:5px; flex-shrink:0; }
+.current-pct-display { font-size: 24px; font-weight: 900; color: var(--neon-blue); }
 
-/* 模式切換 */
-.mode-switch{display:flex;gap:8px;margin-bottom:12px;flex-shrink:0;}
-.mode-switch button{flex:1;padding:16px 0;border:none;border-radius:14px;background:#1a1a1a;color:#666;font-weight:800;font-size:16px;transition: 0.2s;}
-.mode-switch button.active{color:#fff;background:var(--neon-blue);box-shadow:0 4px 15px rgba(0,162,255,0.4);}
-.mode-switch button.multi-btn.active{background:var(--neon-green);box-shadow:0 4px 15px rgba(76,217,100,0.4);}
+.mode-switch{display:flex;gap:6px;margin-bottom:8px;flex-shrink:0;}
+.mode-switch button{flex:1;padding:12px 0;border:none;border-radius:10px;background:#1a1a1a;color:#666;font-weight:800;font-size:14px;}
+.mode-switch button.active{color:#fff;background:var(--neon-blue);}
 
-/* 時間顯示方塊 */
-.time-display{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;flex-shrink:0;}
-.unit-box{flex:1;text-align:center;border:2px solid #2a2a2a;border-radius:16px;padding:12px 0;font-size:34px;font-weight:900;background:#000;transition: 0.1s;}
-.unit-box.active{border-color: var(--neon-blue); background: #0a111a; box-shadow: 0 0 15px rgba(0,162,255,0.1);}
-.unit-box span{font-size:11px;display:block;color:#555;margin-top:4px;font-weight:bold;}
+/* 時間格縮小 */
+.time-display{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:8px;flex-shrink:0;}
+.unit-box{flex:1;text-align:center;border:1px solid #333;border-radius:10px;padding:6px 0;font-size:26px;font-weight:900;background:#000;}
+.unit-box.active{border-color: var(--neon-blue); background: #0a111a;}
+.unit-box span{font-size:10px;display:block;color:#555;}
 
-/* 視窗區域 */
 .view-area{flex:1; position:relative; overflow:hidden;}
 #athleteView,#coachView,#multiView{position:absolute; inset:0; display:none; flex-direction:column;}
 
-/* 滑軌引擎 - GPU 加速 */
+/* 極細拉桿與圓球泡泡 */
 .range-wrapper {
     position: relative;
-    width: 100%; height: 56px;
-    background: #111; border-radius: 28px;
+    width: 100%; height: 36px; /* 高度縮小 */
     display: flex; align-items: center;
-    margin-bottom: 15px; padding: 0 16px;
-    flex-shrink:0; border: 1px solid #222;
+    margin-bottom: 10px; flex-shrink:0;
 }
-input[type=range]{width: 100%; -webkit-appearance: none; background: transparent; z-index: 10;}
-input[type=range]::-webkit-slider-thumb {-webkit-appearance: none; width: 90px; height: 48px;}
+/* 拉桿本體變細 */
+input[type=range]{
+    width: 100%; -webkit-appearance: none; background: #333; 
+    height: 4px; border-radius: 2px; outline: none; z-index: 10;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 50px; height: 32px; /* 隱形的觸控區域 */
+}
 
+/* 圓球泡泡樣式 */
 .bubble {
     position: absolute; top: 50%;
-    transform: translate(-50%, -50%) translateZ(0);
-    width: 90px; height: 46px; line-height: 46px;
-    text-align: center; font-weight: 900; font-size: 22px;
-    border-radius: 23px; pointer-events: none; z-index: 5;
-    color: #fff !important; will-change: left;
+    transform: translate(-50%, -50%);
+    width: 50px; height: 50px; /* 圓形 */
+    line-height: 50px; text-align: center;
+    font-weight: 900; font-size: 14px;
+    border-radius: 50%; pointer-events: none; z-index: 5;
+    color: #fff !important; border: 2px solid #000;
 }
-#athleteBubble { background: var(--neon-blue); box-shadow: 0 0 20px rgba(0,162,255,0.6); }
-#multiBubble { background: var(--neon-green); box-shadow: 0 0 20px rgba(76,217,100,0.6); }
+#athleteBubble { background: var(--neon-blue); box-shadow: 0 0 10px rgba(0,162,255,0.5); }
+#multiBubble { background: var(--neon-green); box-shadow: 0 0 10px rgba(76,217,100,0.5); color: #000 !important; }
 
-/* 個人版大字體 */
-.result-display{flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;}
-.result-time{font-size:76px; font-weight:900; color: var(--neon-blue); text-shadow: 0 0 30px rgba(0,162,255,0.3); font-family: 'Courier New', monospace;}
+/* 個人版大字體稍微下修以平衡空間 */
+.result-display{flex:1; display:flex; justify-content:center; align-items:center;}
+.result-time{font-size:60px; font-weight:900; color: var(--neon-blue); font-family: monospace;}
 
-/* 教練版列表優化 */
-#coachView { overflow-y:auto; background: #080808; border-radius: 18px; border:1px solid #1a1a1a; scroll-behavior: smooth;}
-#coachView table{width:100%; border-collapse:collapse;}
-#coachView tr:nth-child(even) { background: #0d0d0d; }
-#coachView td{padding:20px 10px; text-align:center; font-family:monospace; color:#555; border-bottom:1px solid #111; font-size: 22px;}
-#coachView tr.highlight td{color: #fff !important; font-weight:900; background: rgba(0,162,255,0.3); border-bottom: 1px solid var(--neon-blue);}
+/* 教練版維持原樣但空間更大 */
+#coachView { overflow-y:auto; background: #080808; border-radius: 12px; }
+#coachView td{padding:15px 10px; font-size: 18px;}
 
-/* 多人列表 */
-.multi-card{background: #0d0d0d; border-left:10px solid var(--neon-green); border-radius:16px; padding:22px; margin-bottom:14px; display:flex; align-items:center;}
-.multi-card.selected{background: #141814; outline:2px solid var(--neon-green); box-shadow: 0 0 20px rgba(76,217,100,0.2);}
-.multi-res{font-family:monospace; font-size:36px; color: var(--neon-green); font-weight:900; margin-left: auto;}
+/* 多人版名單優化：更緊湊 */
+.multi-card{background: #0d0d0d; border-left:6px solid var(--neon-green); border-radius:10px; padding:12px 15px; margin-bottom:8px; display:flex; align-items:center;}
+.multi-card.selected{background: #141814; outline:1px solid var(--neon-green);}
+.multi-res{font-family:monospace; font-size:26px; color: var(--neon-green); font-weight:900; margin-left: auto;}
+.p-tag { font-size: 14px; color: #555; font-weight: bold; }
 
-/* 底部鍵盤 */
+/* 鍵盤縮小優化 */
 #numKeyboard {
     flex-shrink: 0; display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 8px; padding: 12px; background: #000; border-top: 1px solid #1a1a1a;
+    gap: 5px; padding: 8px; background: #000; border-top: 1px solid #222;
 }
 #numKeyboard button {
-    padding: 18px 0; font-size: 30px; font-weight: 800;
-    color: #fff; background: #161b22; border: none; border-radius: 14px;
+    padding: 12px 0; font-size: 20px; font-weight: 800;
+    color: #fff; background: #161b22; border: none; border-radius: 8px;
 }
-#numKeyboard button:active { background: #333; transform: scale(0.96); }
-.btn-cmd { color: var(--neon-red) !important; font-size: 18px !important; }
+.btn-cmd { color: var(--neon-red) !important; font-size: 14px !important; }
+
 </style>
 </head>
 <body>
@@ -127,15 +128,15 @@ input[type=range]::-webkit-slider-thumb {-webkit-appearance: none; width: 90px; 
             </div>
 
             <div id="multiView">
-                <div class="multi-header" style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                    <button style="color:#666; background:none; border:none; font-weight:bold" onclick="clearAllMulti()">RESET ALL</button>
-                    <button style="background:var(--neon-green); border:none; padding:8px 15px; border-radius:8px; font-weight:900" onclick="addAthlete()">+ ADD P</button>
+                <div class="multi-header" style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <button style="color:#555; background:none; border:none; font-size:12px;" onclick="clearAllMulti()">RESET</button>
+                    <button style="background:var(--neon-green); border:none; padding:5px 10px; border-radius:6px; font-weight:900; font-size:12px; color:#000" onclick="addAthlete()">+ ADD</button>
                 </div>
                 <div class="range-wrapper">
                     <div class="bubble" id="multiBubble">100%</div>
                     <input type="range" id="mRange" min="50" max="110" step="1" value="100">
                 </div>
-                <div style="flex:1; overflow-y:auto;"><div id="multiCardsList"></div></div>
+                <div style="flex:1; overflow-y:auto; padding-right:5px;"><div id="multiCardsList"></div></div>
             </div>
         </div>
     </div>
@@ -162,20 +163,14 @@ let state = {
 
 const mainRange = document.getElementById('mainRange');
 const mRange = document.getElementById('mRange');
-let scrollTimer = null;
 
 function init() {
-    mainRange.addEventListener('input', () => { 
-        updateUI(); 
-        if(state.mode === 'coach') debouncedSync(); 
-    });
+    mainRange.addEventListener('input', updateUI);
     mRange.addEventListener('input', updateUI);
-    window.addEventListener('resize', updateUI);
     switchMode('athlete');
     renderTable();
 }
 
-/** 模式切換優化 */
 function switchMode(m) {
     state.mode = m;
     document.querySelectorAll('.mode-switch button').forEach(b => b.classList.toggle('active', b.id === m+'Btn'));
@@ -185,10 +180,8 @@ function switchMode(m) {
     document.getElementById('numKeyboard').style.display = (m === 'coach') ? 'none' : 'grid';
     updateDisplay();
     updateUI();
-    if(m === 'coach') debouncedSync();
 }
 
-/** 鍵盤邏輯 */
 function focusBox(i) { state.focus = i; state.isNew = true; updateDisplay(); }
 
 function updateDisplay() {
@@ -216,7 +209,6 @@ function press(k) {
     updateUI();
 }
 
-/** UI 更新 (GPU 友好) */
 function updateUI() {
     requestAnimationFrame(() => {
         const baseMs = toMs(state.base);
@@ -226,7 +218,6 @@ function updateUI() {
         document.getElementById('topPctDisplay').innerText = aVal + '%';
         const athleteBubble = document.getElementById('athleteBubble');
         athleteBubble.innerText = aVal + '%';
-        // 修正泡泡邊界碰撞計算
         athleteBubble.style.left = `${((aVal - 50) / 60 * (aRect.width - 40)) + 20}px`;
         document.getElementById('resText').innerText = fmt(baseMs * (2 - aVal / 100));
 
@@ -263,15 +254,6 @@ function highRow(p) {
     if(r) r.classList.add('highlight');
 }
 
-/** 滾動同步防抖優化 */
-function debouncedSync() {
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(() => {
-        const r = document.getElementById(`row-${mainRange.value}`);
-        if(r) r.scrollIntoView({ block: 'center', behavior: 'smooth' });
-    }, 50);
-}
-
 function addAthlete() { state.athletes.push({vals: ["00", "00", "00"]}); state.multiIdx = state.athletes.length - 1; updateDisplay(); updateUI(); }
 function clearAllMulti() { if(confirm("確定重置多人數據？")) { state.athletes.forEach(a => a.vals = ["00", "00", "00"]); updateDisplay(); updateUI(); } }
 
@@ -285,7 +267,7 @@ function renderCards() {
         const card = document.createElement('div');
         card.className = `multi-card ${i === state.multiIdx ? 'selected' : ''}`;
         card.onclick = () => { state.multiIdx = i; updateDisplay(); updateUI(); };
-        card.innerHTML = `<div style="font-weight:900; color:#444">P${i+1}</div><div class="multi-res">${fmt(ms)}</div>`;
+        card.innerHTML = `<div class="p-tag">P${i+1}</div><div class="multi-res">${fmt(ms)}</div>`;
         l.appendChild(card);
     });
 }
