@@ -2,8 +2,8 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>COACH TECH 2026 - 深色模式完整版</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>COACH TECH 2026 - 深色模式動畫版</title>
 <style>
 :root {
     --bg-dark: #0d1117;
@@ -13,10 +13,9 @@
     --neon-blue: #00a2ff;
     --neon-green: #4cd964;
     --neon-red: #ff3b30;
-    --accent: #4ae3ff;
 }
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-html,body { width:100%; height:100vh; font-family:-apple-system,system-ui,sans-serif; background:var(--bg-dark); color:var(--text-light); overflow:hidden; display:flex; flex-direction:column;}
+html,body { width:100%; height:100vh; font-family:-apple-system,system-ui,sans-serif; background:var(--bg-dark); color:var(--text-light); overflow:hidden; display:flex; flex-direction:column; touch-action: manipulation; -ms-touch-action: manipulation;}
 .container { flex:1; display:flex; flex-direction:column; max-width:480px; margin:auto; padding:8px; }
 h1 { text-align:center; font-size:14px; color:#888; margin-bottom:8px; }
 
@@ -26,7 +25,7 @@ h1 { text-align:center; font-size:14px; color:#888; margin-bottom:8px; }
 .mode-switch button.multi-btn.active { background:var(--neon-green); box-shadow:0 3px 8px rgba(76,217,100,0.3); }
 
 .time-display { display:flex; justify-content:center; align-items:center; gap:5px; margin-bottom:8px; }
-.unit-box { flex:1; text-align:center; border:1.5px solid #333; border-radius:8px; padding:6px 0; font-size:20px; font-weight:700; background:var(--panel-light); cursor:pointer; }
+.unit-box { flex:1; text-align:center; border:1.5px solid #333; border-radius:8px; padding:6px 0; font-size:20px; font-weight:700; background:var(--panel-light); cursor:pointer; user-select:none; }
 .unit-box.active { border-color:var(--neon-blue); background:var(--panel-dark); }
 .unit-box span { font-size:10px; color:#888; display:block; margin-top:0; }
 
@@ -37,16 +36,16 @@ h1 { text-align:center; font-size:14px; color:#888; margin-bottom:8px; }
 
 .range-wrapper { position:relative; width:100%; height:40px; margin:5px 0; }
 input[type=range] { width:100%; -webkit-appearance:none; background:#333; height:6px; border-radius:3px; outline:none; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:28px; height:28px; border-radius:50%; background:var(--neon-blue); cursor:pointer; border:2px solid #fff; margin-top:-11px; }
-input[type=range].multi { background:#333; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:28px; height:28px; border-radius:50%; background:var(--neon-blue); cursor:pointer; border:2px solid #fff; margin-top:-11px; transition: background 0.2s; }
 input[type=range].multi::-webkit-slider-thumb { background:var(--neon-green); }
 
-.bubble { position:absolute; top:-30px; font-weight:700; font-size:14px; padding:2px 6px; border-radius:6px; background:var(--neon-blue); color:#fff; transform:translateX(-50%); pointer-events:none; }
+.bubble { position:absolute; top:-30px; font-weight:700; font-size:14px; padding:2px 6px; border-radius:6px; background:var(--neon-blue); color:#fff; transform:translateX(-50%); pointer-events:none; transition:left 0.15s ease; }
 
 .result { text-align:center; font-size:40px; font-weight:900; margin-top:10px; color:var(--neon-blue); }
 
 #coachView table { width:100%; border-collapse:collapse; overflow-y:auto; flex:1; }
 #coachView td { padding:8px 5px; text-align:center; font-family:monospace; font-weight:700; color:var(--neon-blue); border-bottom:1px solid #222; }
+#coachView tr.active-row td { background:rgba(0,162,255,0.2); }
 
 .multi-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:5px; }
 .btn-group { display:flex; gap:4px; }
@@ -55,7 +54,7 @@ input[type=range].multi::-webkit-slider-thumb { background:var(--neon-green); }
 .clear-btn { background:#555; color:#fff; }
 
 #multiCardsArea { flex:1; overflow-y:auto; }
-.multi-card { background:var(--panel-light); border-left:4px solid var(--neon-green); margin-bottom:4px; padding:6px 10px; border-radius:6px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; }
+.multi-card { background:var(--panel-light); border-left:4px solid var(--neon-green); margin-bottom:4px; padding:6px 10px; border-radius:6px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; transition: background 0.15s; }
 .multi-card.selected { background:#111; border-color:var(--neon-green); }
 .multi-res { font-family:monospace; font-weight:700; color:var(--neon-green); font-size:20px; }
 
@@ -64,7 +63,6 @@ input[type=range].multi::-webkit-slider-thumb { background:var(--neon-green); }
 .numpad-wrapper { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin-top:5px; }
 .key { background:#222; color:#fff; height:48px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; cursor:pointer; }
 .key.gray { background:#555; }
-
 </style>
 </head>
 <body>
@@ -139,8 +137,8 @@ function init(){
     document.getElementById('coachBtn').onclick=()=>switchMode('coach');
     document.getElementById('multiBtn').onclick=()=>switchMode('multi');
 
-    mainRange.oninput=()=>{updateBubble(mainRange,athleteBubble); calculate(); syncCoach();};
-    mRange.oninput=()=>{updateBubble(mRange,multiBubble); calculate(); renderMultiCards();};
+    mainRange.addEventListener('input',()=>{updateBubble(mainRange,athleteBubble); calculate(); renderCoachTable();});
+    mRange.addEventListener('input',()=>{updateBubble(mRange,multiBubble); calculate(); renderMultiCards();});
 
     focusBox(0);
     switchMode('athlete');
@@ -148,7 +146,7 @@ function init(){
 }
 
 function updateBubble(slider,bubble){
-    const percent=(slider.value - slider.min)/(slider.max - slider.min);
+    const percent=(slider.value-slider.min)/(slider.max-slider.min);
     bubble.innerText=slider.value+'%';
     bubble.style.left=`${percent*100}%`;
 }
@@ -160,8 +158,6 @@ function switchMode(m){
     document.getElementById('athleteView').style.display=m==='athlete'?'flex':'none';
     document.getElementById('coachView').style.display=m==='coach'?'flex':'none';
     document.getElementById('multiView').style.display=m==='multi'?'flex':'none';
-    if(m==='coach') renderCoachTable();
-    else if(m==='multi') setMultiTarget(0);
     updateInputDisplay();
     calculate();
 }
@@ -190,11 +186,10 @@ function formatMs(ms){if(!ms||ms<=0) return "00:00.00";let m=Math.floor(ms/60000
 
 function calculate(){
     let base=toTotalMs(singleValues);
-    let val=parseInt(mainRange.value);
-    document.getElementById('resText').innerText=formatMs(base*(2-val/100));
+    document.getElementById('resText').innerText=formatMs(base*(2-parseInt(mainRange.value)/100));
     updateBubble(mainRange,athleteBubble);
+    renderCoachTable();
 
-    let mval=parseInt(mRange.value);
     updateBubble(mRange,multiBubble);
     renderMultiCards();
 }
@@ -207,9 +202,6 @@ function renderCoachTable(){
         html+=`<tr id="row-${i}"><td style="font-weight:700;width:50px">${i}%</td><td>${formatMs(rowMs)}</td></tr>`;
     }
     document.getElementById('coachTable').innerHTML=html;
-    syncCoach();
-}
-function syncCoach(){
     document.querySelectorAll('#coachTable tr').forEach(r=>r.style.background='');
     let row=document.getElementById('row-'+mainRange.value);
     if(row) row.style.background='rgba(0,162,255,0.2)';
