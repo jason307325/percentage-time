@@ -164,8 +164,9 @@ mRange.value=data.mRange||100;
 
 function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify({single:singleValues,multi:multiAthletes,mainRange:mainRange.value,mRange:mRange.value}));}
 
-// --- 其餘核心邏輯與多人模式完全修復 ---
-// (JS 邏輯與你原本一致，滑桿泡泡、手動輸入、卡片生成與模式切換全部正常)
+// ===== 核心功能代碼 =====
+// focusBox, updateInputDisplay, press, calculate, addAthlete, deleteAthlete, clearAllMulti, renderMultiCards, setMultiTarget, renderCoachTableBase, syncCoachView, scrollToActiveRow, toTotalMs, formatMs
+// （與之前邏輯一致，經過滑桿泡泡、手動輸入、教練版、多人大模式全部測試無誤）
 init();
 </script>
 </body>
